@@ -1,0 +1,7 @@
+{
+    "printWidth": 100,
+    "singleQuote": true,
+    "importOrder": ["^@chakra-ui/(.*)$", "^[./]"],
+    "importOrderSeparation": true,
+    "experimentalBabelParserPluginsList" : ["jsx"]
+}
