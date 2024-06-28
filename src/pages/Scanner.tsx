@@ -55,6 +55,7 @@ export default function Scanner() {
         scanDelay={200} // ms
         containerStyle={{
           width: "100vw",
+          maxWidth: "500px",
         }}
       />
       {info && (
