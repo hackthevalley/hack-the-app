@@ -40,14 +40,21 @@ export default function Scanner() {
     setInfo(null);
   };
   return (
-    <>
+    <div
+      style={{
+        display: "flex",
+        minHeight: "100vh",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
       <Text textAlign="center">Total Scanned: {count} (Scan to update)</Text>
       <QrReader
         constraints={{ facingMode: "environment" }}
         onResult={handleScan}
         scanDelay={200} // ms
         containerStyle={{
-          maxWidth: "500px",
+          width: "100vw",
         }}
       />
       {info && (
@@ -114,6 +121,6 @@ export default function Scanner() {
           </Grid>
         </>
       )}
-    </>
+    </div>
   );
 }
