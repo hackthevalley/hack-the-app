@@ -1,17 +1,16 @@
-/* eslint-disable react/jsx-props-no-spreading */
-import { Redirect } from 'react-router-dom';
+import { Navigate } from "react-router-dom";
 
-import { Flex, Container, Box, Heading } from '@chakra-ui/react';
+import { Flex, Container, Box, Heading } from "@chakra-ui/react";
 
-import { useUser } from '../components/Authentication';
-import Login from '../components/Login';
+import { useUser } from "../components/Authentication";
+import Login from "../components/Login";
 
 export default function LoginPage() {
   const { isAuthenticated } = useUser();
 
   // If user is already authenticated, redirect to dashboard
   if (isAuthenticated) {
-    return <Redirect to="/" />;
+    return <Navigate to="/" />;
   }
 
   return (

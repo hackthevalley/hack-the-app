@@ -1,21 +1,18 @@
-import { useState } from 'react';
-import { toast } from 'react-hot-toast';
-import { QrReader } from 'react-qr-reader';
-import { useMutate } from 'restful-react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState } from "react";
+import { toast } from "react-hot-toast";
+import { QrReader } from "react-qr-reader";
+import axiosInstance from "../axiosInstance";
 
-import { Button, Text, Grid, GridItem, Select, Input } from '@chakra-ui/react';
+import { Button, Text, Grid, GridItem, Select, Input } from "@chakra-ui/react";
 
 export default function Scanner() {
   const duplicates = new Set();
-  const [info, setInfo] = useState(null);
+  const [info, setInfo] = useState<any>(null);
   const [count, setCount] = useState(0);
-  const [choice, setChoice] = useState('Email');
-  const quickQuestions = ['Dietary Restrictions', 'T-Shirt Size'];
-  const { mutate: scan } = useMutate({
-    path: `/api/admin/qr/scan`,
-    verb: 'POST',
-  });
-  const handleScan = async (result) => {
+  const [choice, setChoice] = useState("Email");
+  const quickQuestions = ["Dietary Restrictions", "T-Shirt Size"];
+  const handleScan = async (result: any) => {
     if (result) {
       // dedup logic
       if (duplicates.has(result.text)) return;
@@ -24,13 +21,16 @@ export default function Scanner() {
       setTimeout(() => duplicates.delete(result.text), DEDUP_TIMEOUT_MS);
 
       // admit
-      const toastId = toast.loading('Admitting...');
+      const toastId = toast.loading("Admitting...");
       try {
-        const data = await scan({ id: result.text });
+        const response = await axiosInstance.post("/api/admin/qr/scan", {
+          id: result.text,
+        });
+        const data = response.data;
         setInfo(data.body);
         setCount(data.scannedCount);
         toast.success(data.message, { id: toastId });
-      } catch (error) {
+      } catch (error: any) {
         toast.error(error.data.fallbackMessage, { id: toastId });
       }
     }
@@ -43,16 +43,21 @@ export default function Scanner() {
     <>
       <Text textAlign="center">Total Scanned: {count} (Scan to update)</Text>
       <QrReader
-        constraints={{ facingMode: 'environment' }}
+        constraints={{ facingMode: "environment" }}
         onResult={handleScan}
         scanDelay={200} // ms
         containerStyle={{
-          maxWidth: '500px',
+          maxWidth: "500px",
         }}
       />
       {info && (
         <>
-          <Grid rowGap={2} padding="3" paddingTop="0" templateColumns="1fr 1fr 1fr">
+          <Grid
+            rowGap={2}
+            padding="3"
+            paddingTop="0"
+            templateColumns="1fr 1fr 1fr"
+          >
             <GridItem colSpan={1} alignSelf="center">
               <Text textAlign="center" fontSize="xs">
                 Name
@@ -71,14 +76,21 @@ export default function Scanner() {
                 <GridItem colSpan={2}>
                   <Input
                     isDisabled
-                    value={info.answers.find((item) => question === item.question)?.answer}
+                    value={
+                      info.answers.find(
+                        (item: any) => question === item.question
+                      )?.answer
+                    }
                   />
                 </GridItem>
               </>
             ))}
             <GridItem colSpan={1}>
-              <Select value={choice} onChange={(event) => setChoice(event.target.value)}>
-                {info.answers.map((answer) => (
+              <Select
+                value={choice}
+                onChange={(event) => setChoice(event.target.value)}
+              >
+                {info.answers.map((answer: any) => (
                   <option key={answer.id} value={answer.question}>
                     {answer.question}
                   </option>
@@ -88,7 +100,10 @@ export default function Scanner() {
             <GridItem colSpan={2}>
               <Input
                 isDisabled
-                value={info.answers.find((item) => choice === item.question)?.answer}
+                value={
+                  info.answers.find((item: any) => choice === item.question)
+                    ?.answer
+                }
               />
             </GridItem>
             <GridItem colSpan={1} colStart={2}>

@@ -1,10 +1,10 @@
-/* eslint-disable react/jsx-props-no-spreading */
-import { Form, Formik, Field } from 'formik';
-import PropTypes from 'prop-types';
-import toast from 'react-hot-toast';
-import { CgMail, CgLock } from 'react-icons/cg';
-import { useHistory } from 'react-router-dom';
-import { useMutate } from 'restful-react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Form, Formik, Field } from "formik";
+import PropTypes from "prop-types";
+import toast from "react-hot-toast";
+import { CgMail, CgLock } from "react-icons/cg";
+import { useNavigate } from "react-router-dom";
+import axiosInstance from "../axiosInstance";
 
 import {
   FormControl,
@@ -14,40 +14,52 @@ import {
   InputGroup,
   InputLeftElement,
   Button,
-} from '@chakra-ui/react';
+} from "@chakra-ui/react";
 
-import { validateRequiredEmail, validateRequiredPassword } from '../utils/validators';
-import { useUser } from './Authentication';
+import {
+  validateRequiredEmail,
+  validateRequiredPassword,
+} from "../utils/validators";
+import { useUser } from "./Authentication";
 
-export default function Login({ next }) {
-  const history = useHistory();
-  const { mutate: basicAuth } = useMutate({
-    path: '/api/account/auth/token/create/basic',
-    verb: 'POST',
-  });
+interface LoginProps {
+  next: string;
+}
+
+interface FieldProps {
+  field: any;
+  form: any;
+}
+
+export default function Login({ next }: LoginProps) {
+  const navigate = useNavigate();
   const { login } = useUser();
 
   return (
     <Formik
-      initialValues={{ email: '', password: '' }}
-      onSubmit={async (values) => {
-        const loadingToast = toast.loading('Signing in...');
+      initialValues={{ email: "", password: "" }}
+      onSubmit={async (values: any) => {
+        const loadingToast = toast.loading("Signing in...");
         try {
-          const jwt = await basicAuth(values);
+          const response = await axiosInstance.post(
+            "/api/account/auth/token/create/basic",
+            { values }
+          );
+          const jwt = response.data;
           toast.dismiss(loadingToast);
           try {
             await login(jwt.token);
-            toast.success('Signed in');
-            history.push(next);
-          } catch (err) {
+            toast.success("Signed in");
+            navigate(next);
+          } catch (err: any) {
             toast.error(err.message);
           }
-        } catch (err) {
+        } catch (err: any) {
           toast.dismiss(loadingToast);
           if (err.status === 400 && err.data && err.data.nonFieldErrors) {
             toast.error(err.data.nonFieldErrors[0]);
           } else {
-            toast.error('Unexpected error. Try again later.');
+            toast.error("Unexpected error. Try again later.");
           }
         }
       }}
@@ -55,7 +67,7 @@ export default function Login({ next }) {
       {({ isSubmitting }) => (
         <Form>
           <Field name="email" validate={validateRequiredEmail}>
-            {({ field, form }) => (
+            {({ field, form }: FieldProps) => (
               <FormControl isInvalid={form.errors.email && form.touched.email}>
                 <FormLabel htmlFor="email">Email address</FormLabel>
                 <InputGroup>
@@ -69,8 +81,11 @@ export default function Login({ next }) {
             )}
           </Field>
           <Field name="password" validate={validateRequiredPassword}>
-            {({ field, form }) => (
-              <FormControl mt={4} isInvalid={form.errors.password && form.touched.password}>
+            {({ field, form }: FieldProps) => (
+              <FormControl
+                mt={4}
+                isInvalid={form.errors.password && form.touched.password}
+              >
                 <FormLabel>Password</FormLabel>
                 <InputGroup>
                   <InputLeftElement pointerEvents="none">
@@ -82,7 +97,12 @@ export default function Login({ next }) {
               </FormControl>
             )}
           </Field>
-          <Button mt={5} type="submit" isLoading={isSubmitting} loadingText="Signing in">
+          <Button
+            mt={5}
+            type="submit"
+            isLoading={isSubmitting}
+            loadingText="Signing in"
+          >
             Sign In
           </Button>
         </Form>
