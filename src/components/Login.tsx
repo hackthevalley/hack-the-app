@@ -43,7 +43,7 @@ export default function Login({ next }: LoginProps) {
         try {
           const response = await axiosInstance.post(
             "/api/account/auth/token/create/basic",
-            { values }
+            { email: values.email, password: values.password }
           );
           const jwt = response.data;
           toast.dismiss(loadingToast);

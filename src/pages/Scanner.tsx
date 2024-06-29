@@ -48,6 +48,7 @@ export default function Scanner() {
         videoRef.current,
         (result) => handleScan(result),
         {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           onDecodeError: (error) => {
             // console.error(error);
           },
