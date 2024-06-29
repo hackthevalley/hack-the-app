@@ -6,6 +6,9 @@ import QrScanner from "qr-scanner";
 import axiosInstance from "../axiosInstance";
 
 import { Button, Text, Grid, GridItem, Select, Input } from "@chakra-ui/react";
+import { useUser } from "../components/Authentication";
+import { Navigate } from "react-router-dom";
+import { DEV_IGNORE_AUTH } from "../dev.config";
 
 export default function Scanner() {
   const duplicates = new Set();
@@ -14,6 +17,7 @@ export default function Scanner() {
   const [choice, setChoice] = useState("Email");
   const quickQuestions = ["Dietary Restrictions", "T-Shirt Size"];
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const { isAuthenticated } = useUser();
   const handleScan = async (result: any) => {
     if (result) {
       // dedup logic
@@ -25,11 +29,9 @@ export default function Scanner() {
       // admit
       const toastId = toast.loading("Admitting...");
       try {
-        console.log(result.data);
         const response = await axiosInstance.post("/api/admin/qr/scan", {
           id: result.data,
         });
-        console.log(response);
         const data = response.data;
         setInfo(data.body);
         setCount(data.scannedCount);
@@ -48,8 +50,7 @@ export default function Scanner() {
         videoRef.current,
         (result) => handleScan(result),
         {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          onDecodeError: (error) => {
+          onDecodeError: () => {
             // console.error(error);
           },
           highlightScanRegion: false,
@@ -70,6 +71,10 @@ export default function Scanner() {
   const handleNext = () => {
     setInfo(null);
   };
+  console.log(DEV_IGNORE_AUTH);
+  if (!isAuthenticated && !DEV_IGNORE_AUTH) {
+    return <Navigate to="/login" />;
+  }
   return (
     <div
       style={{

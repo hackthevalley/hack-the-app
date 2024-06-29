@@ -9,4 +9,4 @@
 //   },
 // });
 
-export const DEV_IGNORE_AUTH = import.meta.env.VITE_NODE_ENV !== "production";
+export const DEV_IGNORE_AUTH = import.meta.env.DEV;
