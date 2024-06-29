@@ -5,7 +5,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ChakraProvider, ColorModeScript, extendTheme } from "@chakra-ui/react";
 
 import { AuthProvider } from "./components/Authentication";
-// import routes from "./routes";
 import Scanner from "./pages/Scanner";
 import Login from "./pages/Login";
 
@@ -32,9 +31,6 @@ function App() {
       <AuthProvider>
         <Router>
           <Routes>
-            {/* {routes.map(({ label, icon, ...routeProps }) => (
-              <Route {...routeProps} key={routeProps.path + routeProps.exact} />
-            ))} */}
             <Route path="/" element={<Scanner />} />
             <Route path="/login" element={<Login />} />
           </Routes>

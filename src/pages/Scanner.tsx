@@ -8,7 +8,6 @@ import axiosInstance from "../axiosInstance";
 import { Button, Text, Grid, GridItem, Select, Input } from "@chakra-ui/react";
 import { useUser } from "../components/Authentication";
 import { Navigate } from "react-router-dom";
-import { DEV_IGNORE_AUTH } from "../dev.config";
 
 export default function Scanner() {
   const duplicates = new Set();
@@ -71,8 +70,8 @@ export default function Scanner() {
   const handleNext = () => {
     setInfo(null);
   };
-  console.log(DEV_IGNORE_AUTH);
-  if (!isAuthenticated && !DEV_IGNORE_AUTH) {
+  console.log(import.meta.env.DEV);
+  if (!isAuthenticated && !import.meta.env.DEV) {
     return <Navigate to="/login" />;
   }
   return (

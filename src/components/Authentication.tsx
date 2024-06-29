@@ -12,8 +12,6 @@ import {
 } from "react";
 import axiosInstance from "../axiosInstance";
 
-import { DEV_IGNORE_AUTH } from "../dev.config";
-
 interface IUserContext {
   login: (token: string) => Promise<any>;
   logout: () => void;
@@ -26,48 +24,11 @@ interface IAuthProviderProps {
   children: React.ReactNode;
 }
 
-interface IProtectedProps {
-  children: React.ReactNode;
-  fallback: React.ReactNode;
-}
-
 const UserContext = createContext({} as IUserContext);
 
 export function useUser() {
   return useContext(UserContext);
 }
-
-export function withProtected(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Component: React.ComponentType<any>,
-  fallback: React.ReactNode
-) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (props: any) => (
-    <Protected fallback={fallback}>
-      <Component {...props} />
-    </Protected>
-  );
-}
-
-export function Protected({ children, fallback }: IProtectedProps) {
-  const { loading, isAuthenticated } = useUser();
-
-  if (loading) {
-    return "Loading...";
-  }
-
-  if (DEV_IGNORE_AUTH) {
-    return children;
-  }
-
-  return isAuthenticated ? children : fallback;
-}
-
-Protected.propTypes = {
-  children: PropTypes.node,
-  fallback: PropTypes.node,
-};
 
 export function AuthProvider({ children }: IAuthProviderProps) {
   const [loading, setLoading] = useState(true);
