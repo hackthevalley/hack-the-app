@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, useCallback } from "react";
 
 export default function useTransactionalState(initState = {}) {
   const [currState, setCurrState] = useState(initState);
@@ -17,7 +18,7 @@ export default function useTransactionalState(initState = {}) {
   }, [stagedState]);
 
   const push = useCallback(
-    (state, force) => {
+    (state: any, force: any) => {
       const newState = {
         ...(force ? {} : stagedState),
         ...state,
