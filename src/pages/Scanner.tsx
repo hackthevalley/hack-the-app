@@ -51,8 +51,8 @@ export default function Scanner() {
           onDecodeError: (error) => {
             console.error(error);
           },
-          highlightScanRegion: true,
-          highlightCodeOutline: true,
+          highlightScanRegion: false,
+          highlightCodeOutline: false,
         }
       );
       qrScanner.start();
