@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "react-hot-toast";
-import { QrReader } from "react-qr-reader";
+// import { QrReader } from "react-qr-reader";
+import QrScanner from "qr-scanner";
 import axiosInstance from "../axiosInstance";
 
 import { Button, Text, Grid, GridItem, Select, Input } from "@chakra-ui/react";
@@ -12,20 +13,23 @@ export default function Scanner() {
   const [count, setCount] = useState(0);
   const [choice, setChoice] = useState("Email");
   const quickQuestions = ["Dietary Restrictions", "T-Shirt Size"];
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const handleScan = async (result: any) => {
     if (result) {
       // dedup logic
-      if (duplicates.has(result.text)) return;
-      duplicates.add(result.text);
+      if (duplicates.has(result.data)) return;
+      duplicates.add(result.data);
       const DEDUP_TIMEOUT_MS = 4000;
-      setTimeout(() => duplicates.delete(result.text), DEDUP_TIMEOUT_MS);
+      setTimeout(() => duplicates.delete(result.data), DEDUP_TIMEOUT_MS);
 
       // admit
       const toastId = toast.loading("Admitting...");
       try {
+        console.log(result.data);
         const response = await axiosInstance.post("/api/admin/qr/scan", {
-          id: result.text,
+          id: result.data,
         });
+        console.log(response);
         const data = response.data;
         setInfo(data.body);
         setCount(data.scannedCount);
@@ -35,6 +39,32 @@ export default function Scanner() {
       }
     }
   };
+
+  useEffect(() => {
+    let qrScanner: QrScanner | null = null;
+
+    if (videoRef.current) {
+      qrScanner = new QrScanner(
+        videoRef.current,
+        (result) => handleScan(result),
+        {
+          onDecodeError: (error) => {
+            console.error(error);
+          },
+          highlightScanRegion: true,
+          highlightCodeOutline: true,
+        }
+      );
+      qrScanner.start();
+    }
+
+    return () => {
+      if (qrScanner) {
+        qrScanner.stop();
+        qrScanner.destroy();
+      }
+    };
+  }, []);
 
   const handleNext = () => {
     setInfo(null);
@@ -49,13 +79,12 @@ export default function Scanner() {
       }}
     >
       <Text textAlign="center">Total Scanned: {count} (Scan to update)</Text>
-      <QrReader
-        constraints={{ facingMode: "environment" }}
-        onResult={handleScan}
-        scanDelay={200} // ms
-        containerStyle={{
+      <video
+        ref={videoRef}
+        style={{
           width: "100vw",
           maxWidth: "500px",
+          border: "1px solid black",
         }}
       />
       {info && (
