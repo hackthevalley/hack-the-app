@@ -83,7 +83,7 @@ export function AuthProvider({ children }: IAuthProviderProps) {
   const login = useCallback(async (token: string) => {
     try {
       localStorage.setItem("auth-token", token);
-      const payload: any = jose.decodeProtectedHeader(token);
+      const payload: any = jose.decodeJwt(token);
       if (!payload.isStaffUser) throw new Error("You do not have access");
       const response = await axiosInstance.get("/api/account/users/me");
       setIsAuthenticated(true);
@@ -102,6 +102,7 @@ export function AuthProvider({ children }: IAuthProviderProps) {
         setLoading(false);
         return;
       }
+      console.log("we try refresh");
       try {
         const response = await axiosInstance.post(
           "/api/account/auth/token/refresh",
