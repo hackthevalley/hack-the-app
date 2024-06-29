@@ -49,7 +49,7 @@ export default function Scanner() {
         (result) => handleScan(result),
         {
           onDecodeError: (error) => {
-            console.error(error);
+            // console.error(error);
           },
           highlightScanRegion: false,
           highlightCodeOutline: false,
