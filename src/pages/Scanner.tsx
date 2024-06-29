@@ -65,12 +65,12 @@ export default function Scanner() {
         qrScanner.destroy();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleNext = () => {
     setInfo(null);
   };
-  console.log(import.meta.env.DEV);
   if (!isAuthenticated && !import.meta.env.DEV) {
     return <Navigate to="/login" />;
   }

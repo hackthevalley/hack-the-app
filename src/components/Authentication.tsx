@@ -63,7 +63,6 @@ export function AuthProvider({ children }: IAuthProviderProps) {
         setLoading(false);
         return;
       }
-      console.log("we try refresh");
       try {
         const response = await axiosInstance.post(
           "/api/account/auth/token/refresh",
