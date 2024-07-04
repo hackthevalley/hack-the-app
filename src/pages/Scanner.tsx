@@ -88,6 +88,7 @@ export default function Scanner() {
         ref={videoRef}
         style={{
           width: "100vw",
+          height: "100vh",
           maxWidth: "500px",
           border: "1px solid black",
         }}
