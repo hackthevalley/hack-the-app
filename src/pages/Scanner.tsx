@@ -90,9 +90,11 @@ export default function Scanner() {
         overflow: "hidden",
       }}
     >
-      <Flex style={{ flexDirection: "column", gap: "16px" }}>
+      <Flex style={{ flexDirection: "column", gap: "8px" }}>
         <Text textAlign="center">
-          {count} hackers have checked in <br /> (Scan to update)
+          {count} hackers have checked in! <br />
+          Ready to join the excitement and <br />
+          meet new people? (Scan to update)
         </Text>
         <video
           ref={videoRef}
@@ -104,7 +106,7 @@ export default function Scanner() {
         />
       </Flex>
       <Button width="100%" marginY="36px" onClick={() => navigate("/override")}>
-        Manual Override
+        Haven't signed up?
       </Button>
       {/* {info && (
         <>
