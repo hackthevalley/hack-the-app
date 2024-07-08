@@ -82,7 +82,7 @@ export default function Scanner() {
         height: "100vh",
         flexDirection: "column",
         alignItems: "center",
-        marginTop: "16px",
+        // marginTop: "16px",
         marginRight: "16px",
         marginLeft: "16px",
         justifyContent: "space-between",
@@ -98,13 +98,17 @@ export default function Scanner() {
         <video
           ref={videoRef}
           style={{
-            width: "100wh",
-            maxWidth: "500px",
+            width: "50wh",
+            // maxWidth: "500px",
             border: "1px solid black",
           }}
         />
       </Flex>
-      <Button width="100%" marginY="36px" onClick={() => navigate("/override")}>
+      <Button
+        width="100%"
+        marginBottom="100px"
+        onClick={() => navigate("/override")}
+      >
         Haven't signed up?
       </Button>
     </Flex>
