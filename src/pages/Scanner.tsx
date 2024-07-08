@@ -1,20 +1,28 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef } from "react";
 import { toast } from "react-hot-toast";
 // import { QrReader } from "react-qr-reader";
 import QrScanner from "qr-scanner";
 import axiosInstance from "../axiosInstance";
-
-import { Button, Text, Grid, GridItem, Select, Input } from "@chakra-ui/react";
+import {
+  Button,
+  Text,
+  Grid,
+  GridItem,
+  Select,
+  Input,
+  Flex,
+} from "@chakra-ui/react";
 import { useUser } from "../components/Authentication";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 export default function Scanner() {
   const duplicates = new Set();
   const [info, setInfo] = useState<any>(null);
   const [count, setCount] = useState(0);
-  const [choice, setChoice] = useState("Email");
-  const quickQuestions = ["Dietary Restrictions", "T-Shirt Size"];
+  // const [choice, setChoice] = useState("Email");
+  // const quickQuestions = ["Dietary Restrictions", "T-Shirt Size"];
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const { isAuthenticated } = useUser();
   const handleScan = async (result: any) => {
@@ -68,31 +76,47 @@ export default function Scanner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleNext = () => {
-    setInfo(null);
-  };
+  // const handleNext = () => {
+  //   setInfo(null);
+  // };
+  const navigate = useNavigate();
+  useEffect(() => {
+    console.log(info);
+  }, [info]);
+
   if (!isAuthenticated && !import.meta.env.DEV) {
     return <Navigate to="/login" />;
   }
   return (
-    <div
+    <Flex
       style={{
-        display: "flex",
-        minHeight: "100vh",
+        height: "100vh",
         flexDirection: "column",
         alignItems: "center",
+        marginTop: "16px",
+        marginRight: "16px",
+        marginLeft: "16px",
+        justifyContent: "space-between",
+        overflow: "hidden",
       }}
     >
-      <Text textAlign="center">Total Scanned: {count} (Scan to update)</Text>
-      <video
-        ref={videoRef}
-        style={{
-          width: "100vw",
-          maxWidth: "500px",
-          border: "1px solid black",
-        }}
-      />
-      {info && (
+      <Flex style={{ flexDirection: "column", gap: "16px" }}>
+        <Text textAlign="center">
+          {count} hackers have checked in <br /> (Scan to update)
+        </Text>
+        <video
+          ref={videoRef}
+          style={{
+            width: "100wh",
+            maxWidth: "500px",
+            border: "1px solid black",
+          }}
+        />
+      </Flex>
+      <Button width="100%" marginY="36px" onClick={() => navigate("/override")}>
+        Manual Override
+      </Button>
+      {/* {info && (
         <>
           <Grid
             rowGap={2}
@@ -155,7 +179,7 @@ export default function Scanner() {
             </GridItem>
           </Grid>
         </>
-      )}
-    </div>
+      )} */}
+    </Flex>
   );
 }
