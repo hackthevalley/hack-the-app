@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef } from "react";
 import { toast } from "react-hot-toast";
-// import { QrReader } from "react-qr-reader";
 import QrScanner from "qr-scanner";
 import axiosInstance from "../axiosInstance";
 import { Button, Text, Flex } from "@chakra-ui/react";
@@ -108,70 +107,6 @@ export default function Scanner() {
       <Button width="100%" marginY="36px" onClick={() => navigate("/override")}>
         Haven't signed up?
       </Button>
-      {/* {info && (
-        <>
-          <Grid
-            rowGap={2}
-            padding="3"
-            paddingTop="0"
-            templateColumns="1fr 1fr 1fr"
-          >
-            <GridItem colSpan={1} alignSelf="center">
-              <Text textAlign="center" fontSize="xs">
-                Name
-              </Text>
-            </GridItem>
-            <GridItem colSpan={2}>
-              <Input isDisabled value={info.user.fullName} />
-            </GridItem>
-            {quickQuestions.map((question) => (
-              <>
-                <GridItem colSpan={1} alignSelf="center">
-                  <Text textAlign="center" fontSize="xs">
-                    {question}
-                  </Text>
-                </GridItem>
-                <GridItem colSpan={2}>
-                  <Input
-                    isDisabled
-                    value={
-                      info.answers.find(
-                        (item: any) => question === item.question
-                      )?.answer
-                    }
-                  />
-                </GridItem>
-              </>
-            ))}
-            <GridItem colSpan={1}>
-              <Select
-                value={choice}
-                onChange={(event) => setChoice(event.target.value)}
-              >
-                {info.answers.map((answer: any) => (
-                  <option key={answer.id} value={answer.question}>
-                    {answer.question}
-                  </option>
-                ))}
-              </Select>
-            </GridItem>
-            <GridItem colSpan={2}>
-              <Input
-                isDisabled
-                value={
-                  info.answers.find((item: any) => choice === item.question)
-                    ?.answer
-                }
-              />
-            </GridItem>
-            <GridItem colSpan={1} colStart={2}>
-              <Button width="100%" onClick={handleNext}>
-                Scan next
-              </Button>
-            </GridItem>
-          </Grid>
-        </>
-      )} */}
     </Flex>
   );
 }
