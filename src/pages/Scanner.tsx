@@ -82,7 +82,7 @@ export default function Scanner() {
   return (
     <Flex
       style={{
-        height: "100vh",
+        height: "100svh",
         flexDirection: "column",
         alignItems: "center",
         // marginTop: "16px",
@@ -107,7 +107,7 @@ export default function Scanner() {
           }}
         />
       </Flex>
-      <Button width="100%" marginBottom="100px" onClick={() => setPage(1)}>
+      <Button width="100%" marginBottom="16px" onClick={() => setPage(1)}>
         Haven't signed up?
       </Button>
     </Flex>
