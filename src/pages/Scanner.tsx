@@ -94,7 +94,7 @@ export default function Scanner() {
         <Text textAlign="center">
           {count} hackers have checked in! <br />
           Ready to join the excitement and <br />
-          meet new people? (Scan to update)
+          meet new people?
         </Text>
         <video
           ref={videoRef}
