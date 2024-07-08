@@ -1,11 +1,14 @@
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
-import { useUser } from "../components/Authentication";
+import { useUser } from "./Authentication";
 import { Button, Flex, Text } from "@chakra-ui/react";
 
-export default function OverridePage() {
+interface OverrideProps {
+  setPage: React.Dispatch<React.SetStateAction<number>>;
+}
+
+export default function OverridePage({ setPage }: OverrideProps) {
   const { isAuthenticated } = useUser();
-  const navigate = useNavigate();
   if (!isAuthenticated && !import.meta.env.DEV) {
     return <Navigate to="/login" />;
   }
@@ -20,7 +23,7 @@ export default function OverridePage() {
       }}
     >
       <Text textAlign="center">Manual Override Page here</Text>
-      <Button width="50%" onClick={() => navigate("/")}>
+      <Button width="50%" onClick={() => setPage(0)}>
         Back to scanner
       </Button>
     </Flex>

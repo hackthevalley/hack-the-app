@@ -7,7 +7,6 @@ import { ChakraProvider, ColorModeScript, extendTheme } from "@chakra-ui/react";
 import { AuthProvider } from "./components/Authentication";
 import Scanner from "./pages/Scanner";
 import Login from "./pages/Login";
-import OverridePage from "./pages/Manual_Override";
 
 const theme = extendTheme({
   config: {
@@ -34,7 +33,6 @@ function App() {
           <Routes>
             <Route path="/" element={<Scanner />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/override" element={<OverridePage />} />
           </Routes>
         </Router>
       </AuthProvider>

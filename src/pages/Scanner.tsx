@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef } from "react";
 import { toast } from "react-hot-toast";
@@ -5,7 +6,8 @@ import QrScanner from "qr-scanner";
 import axiosInstance from "../axiosInstance";
 import { Button, Text, Flex } from "@chakra-ui/react";
 import { useUser } from "../components/Authentication";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import OverridePage from "../components/Manual_Override";
 
 export default function Scanner() {
   const duplicates = new Set();
@@ -13,7 +15,7 @@ export default function Scanner() {
   const [count, setCount] = useState(0);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const { isAuthenticated } = useUser();
-  const navigate = useNavigate();
+  const [page, setPage] = useState(0);
 
   const handleScan = async (result: any) => {
     if (result) {
@@ -62,7 +64,7 @@ export default function Scanner() {
         qrScanner.destroy();
       }
     };
-  }, [videoRef]);
+  }, [videoRef.current]);
 
   //remove this later when connecting the qr code scanner to the actual main page
   useEffect(() => {
@@ -71,6 +73,10 @@ export default function Scanner() {
 
   if (!isAuthenticated && !import.meta.env.DEV) {
     return <Navigate to="/login" />;
+  }
+
+  if (page == 1) {
+    return <OverridePage setPage={setPage} />;
   }
 
   return (
@@ -101,11 +107,7 @@ export default function Scanner() {
           }}
         />
       </Flex>
-      <Button
-        width="100%"
-        marginBottom="100px"
-        onClick={() => navigate("/override")}
-      >
+      <Button width="100%" marginBottom="100px" onClick={() => setPage(1)}>
         Haven't signed up?
       </Button>
     </Flex>
