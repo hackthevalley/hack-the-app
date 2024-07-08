@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef } from "react";
 import { toast } from "react-hot-toast";
@@ -14,6 +13,8 @@ export default function Scanner() {
   const [count, setCount] = useState(0);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const { isAuthenticated } = useUser();
+  const navigate = useNavigate();
+
   const handleScan = async (result: any) => {
     if (result) {
       // dedup logic
@@ -40,7 +41,6 @@ export default function Scanner() {
 
   useEffect(() => {
     let qrScanner: QrScanner | null = null;
-
     if (videoRef.current) {
       qrScanner = new QrScanner(
         videoRef.current,
@@ -62,13 +62,9 @@ export default function Scanner() {
         qrScanner.destroy();
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [videoRef]);
 
-  // const handleNext = () => {
-  //   setInfo(null);
-  // };
-  const navigate = useNavigate();
+  //remove this later when connecting the qr code scanner to the actual main page
   useEffect(() => {
     console.log(info);
   }, [info]);
@@ -76,6 +72,7 @@ export default function Scanner() {
   if (!isAuthenticated && !import.meta.env.DEV) {
     return <Navigate to="/login" />;
   }
+
   return (
     <Flex
       style={{
