@@ -1,6 +1,3 @@
-import { Navigate } from "react-router-dom";
-
-import { useUser } from "./Authentication";
 import { Button, Flex, Text } from "@chakra-ui/react";
 
 interface OverrideProps {
@@ -8,10 +5,6 @@ interface OverrideProps {
 }
 
 export default function OverridePage({ setPage }: OverrideProps) {
-  const { isAuthenticated } = useUser();
-  if (!isAuthenticated && !import.meta.env.DEV) {
-    return <Navigate to="/login" />;
-  }
   return (
     <Flex
       style={{
