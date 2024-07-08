@@ -5,15 +5,7 @@ import { toast } from "react-hot-toast";
 // import { QrReader } from "react-qr-reader";
 import QrScanner from "qr-scanner";
 import axiosInstance from "../axiosInstance";
-import {
-  Button,
-  Text,
-  Grid,
-  GridItem,
-  Select,
-  Input,
-  Flex,
-} from "@chakra-ui/react";
+import { Button, Text, Flex } from "@chakra-ui/react";
 import { useUser } from "../components/Authentication";
 import { Navigate, useNavigate } from "react-router-dom";
 
@@ -21,8 +13,6 @@ export default function Scanner() {
   const duplicates = new Set();
   const [info, setInfo] = useState<any>(null);
   const [count, setCount] = useState(0);
-  // const [choice, setChoice] = useState("Email");
-  // const quickQuestions = ["Dietary Restrictions", "T-Shirt Size"];
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const { isAuthenticated } = useUser();
   const handleScan = async (result: any) => {
