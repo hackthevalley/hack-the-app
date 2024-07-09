@@ -9,13 +9,20 @@ import { useUser } from "../components/Authentication";
 import { Navigate } from "react-router-dom";
 import OverridePage from "../components/Manual_Override";
 
+const usePage = (initialValue = 0) => {
+  const [page, setPage] = useState(initialValue);
+  const changePage = (pageNumber: number) => setPage(pageNumber);
+
+  return { page, changePage };
+};
+
 export default function Scanner() {
   const duplicates = new Set();
   const [info, setInfo] = useState<any>(null);
   const [count, setCount] = useState(0);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const { isAuthenticated } = useUser();
-  const [page, setPage] = useState(0);
+  const { page, changePage } = usePage();
 
   const handleScan = async (result: any) => {
     if (result) {
@@ -76,7 +83,7 @@ export default function Scanner() {
   }
 
   if (page == 1) {
-    return <OverridePage setPage={setPage} />;
+    return <OverridePage changePage={changePage} />;
   }
 
   return (
@@ -107,7 +114,7 @@ export default function Scanner() {
           }}
         />
       </Flex>
-      <Button width="100%" marginBottom="16px" onClick={() => setPage(1)}>
+      <Button width="100%" marginBottom="16px" onClick={() => changePage(1)}>
         Haven't signed up?
       </Button>
     </Flex>

@@ -1,10 +1,10 @@
 import { Button, Flex, Text } from "@chakra-ui/react";
 
 interface OverrideProps {
-  setPage: React.Dispatch<React.SetStateAction<number>>;
+  changePage: (pageNumber: number) => void;
 }
 
-export default function OverridePage({ setPage }: OverrideProps) {
+export default function OverridePage({ changePage }: OverrideProps) {
   return (
     <Flex
       style={{
@@ -16,7 +16,7 @@ export default function OverridePage({ setPage }: OverrideProps) {
       }}
     >
       <Text textAlign="center">Manual Override Page here</Text>
-      <Button width="50%" onClick={() => setPage(0)}>
+      <Button width="50%" onClick={() => changePage(0)}>
         Back to scanner
       </Button>
     </Flex>
