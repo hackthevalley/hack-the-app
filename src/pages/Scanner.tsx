@@ -100,11 +100,7 @@ export default function Scanner() {
       }}
     >
       <Flex style={{ flexDirection: "column", gap: "8px" }}>
-        <Text textAlign="center">
-          {count} hackers have checked in! <br />
-          Ready to join the excitement and <br />
-          meet new people?
-        </Text>
+        <Text textAlign="center">{count} hackers have checked in!</Text>
         <video
           ref={videoRef}
           style={{
