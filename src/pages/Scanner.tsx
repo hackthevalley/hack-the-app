@@ -58,7 +58,7 @@ export default function Scanner() {
           onDecodeError: () => {
             // console.error(error);
           },
-          highlightScanRegion: false,
+          highlightScanRegion: true,
           highlightCodeOutline: false,
         }
       );
