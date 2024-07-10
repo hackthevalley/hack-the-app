@@ -25,7 +25,7 @@ export default function Scanner() {
   const { page, changePage } = usePage();
 
   const handleScan = async (result: any) => {
-    if (result) {
+    if (result && result.data != "") {
       // dedup logic
       if (duplicates.has(result.data)) return;
       duplicates.add(result.data);
