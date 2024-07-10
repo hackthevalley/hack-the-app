@@ -1,24 +1,31 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef } from "react";
 import { toast } from "react-hot-toast";
-// import { QrReader } from "react-qr-reader";
 import QrScanner from "qr-scanner";
 import axiosInstance from "../axiosInstance";
-
-import { Button, Text, Grid, GridItem, Select, Input } from "@chakra-ui/react";
+import { Button, Text, Flex } from "@chakra-ui/react";
 import { useUser } from "../components/Authentication";
 import { Navigate } from "react-router-dom";
+import OverridePage from "../components/Manual_Override";
+
+const usePage = (initialValue = 0) => {
+  const [page, setPage] = useState(initialValue);
+  const changePage = (pageNumber: number) => setPage(pageNumber);
+
+  return { page, changePage };
+};
 
 export default function Scanner() {
   const duplicates = new Set();
   const [info, setInfo] = useState<any>(null);
   const [count, setCount] = useState(0);
-  const [choice, setChoice] = useState("Email");
-  const quickQuestions = ["Dietary Restrictions", "T-Shirt Size"];
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const { isAuthenticated } = useUser();
+  const { page, changePage } = usePage();
+
   const handleScan = async (result: any) => {
-    if (result) {
+    if (result && result.data != "") {
       // dedup logic
       if (duplicates.has(result.data)) return;
       duplicates.add(result.data);
@@ -43,7 +50,6 @@ export default function Scanner() {
 
   useEffect(() => {
     let qrScanner: QrScanner | null = null;
-
     if (videoRef.current) {
       qrScanner = new QrScanner(
         videoRef.current,
@@ -52,7 +58,7 @@ export default function Scanner() {
           onDecodeError: () => {
             // console.error(error);
           },
-          highlightScanRegion: false,
+          highlightScanRegion: true,
           highlightCodeOutline: false,
         }
       );
@@ -65,97 +71,48 @@ export default function Scanner() {
         qrScanner.destroy();
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [page]);
 
-  const handleNext = () => {
-    setInfo(null);
-  };
+  //remove this later when connecting the qr code scanner to the actual main page
+  useEffect(() => {
+    console.log(info);
+  }, [info]);
+
   if (!isAuthenticated && !import.meta.env.DEV) {
     return <Navigate to="/login" />;
   }
+
+  if (page == 1) {
+    return <OverridePage changePage={changePage} />;
+  }
+
   return (
-    <div
+    <Flex
       style={{
-        display: "flex",
-        minHeight: "100vh",
+        height: "100svh",
         flexDirection: "column",
         alignItems: "center",
+        // marginTop: "16px",
+        marginRight: "16px",
+        marginLeft: "16px",
+        justifyContent: "space-between",
+        overflow: "hidden",
       }}
     >
-      <Text textAlign="center">Total Scanned: {count} (Scan to update)</Text>
-      <video
-        ref={videoRef}
-        style={{
-          width: "100vw",
-          maxWidth: "500px",
-          border: "1px solid black",
-        }}
-      />
-      {info && (
-        <>
-          <Grid
-            rowGap={2}
-            padding="3"
-            paddingTop="0"
-            templateColumns="1fr 1fr 1fr"
-          >
-            <GridItem colSpan={1} alignSelf="center">
-              <Text textAlign="center" fontSize="xs">
-                Name
-              </Text>
-            </GridItem>
-            <GridItem colSpan={2}>
-              <Input isDisabled value={info.user.fullName} />
-            </GridItem>
-            {quickQuestions.map((question) => (
-              <>
-                <GridItem colSpan={1} alignSelf="center">
-                  <Text textAlign="center" fontSize="xs">
-                    {question}
-                  </Text>
-                </GridItem>
-                <GridItem colSpan={2}>
-                  <Input
-                    isDisabled
-                    value={
-                      info.answers.find(
-                        (item: any) => question === item.question
-                      )?.answer
-                    }
-                  />
-                </GridItem>
-              </>
-            ))}
-            <GridItem colSpan={1}>
-              <Select
-                value={choice}
-                onChange={(event) => setChoice(event.target.value)}
-              >
-                {info.answers.map((answer: any) => (
-                  <option key={answer.id} value={answer.question}>
-                    {answer.question}
-                  </option>
-                ))}
-              </Select>
-            </GridItem>
-            <GridItem colSpan={2}>
-              <Input
-                isDisabled
-                value={
-                  info.answers.find((item: any) => choice === item.question)
-                    ?.answer
-                }
-              />
-            </GridItem>
-            <GridItem colSpan={1} colStart={2}>
-              <Button width="100%" onClick={handleNext}>
-                Scan next
-              </Button>
-            </GridItem>
-          </Grid>
-        </>
-      )}
-    </div>
+      <Flex style={{ flexDirection: "column", gap: "8px" }}>
+        <Text textAlign="center">{count} hackers have checked in!</Text>
+        <video
+          ref={videoRef}
+          style={{
+            width: "50wh",
+            // maxWidth: "500px",
+            border: "1px solid black",
+          }}
+        />
+      </Flex>
+      <Button width="100%" marginBottom="16px" onClick={() => changePage(1)}>
+        Haven't signed up?
+      </Button>
+    </Flex>
   );
 }
