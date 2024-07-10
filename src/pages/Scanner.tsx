@@ -71,7 +71,7 @@ export default function Scanner() {
         qrScanner.destroy();
       }
     };
-  }, [videoRef.current]);
+  }, [page]);
 
   //remove this later when connecting the qr code scanner to the actual main page
   useEffect(() => {
