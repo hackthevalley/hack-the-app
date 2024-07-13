@@ -51,7 +51,6 @@ export default function OverridePage({ changePage }: OverrideProps) {
           status: "error",
           isClosable: true,
         });
-        console.log("failed");
       }
     } else {
       setIsError(true);
