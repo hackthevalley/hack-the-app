@@ -57,6 +57,10 @@ export default function OverridePage({ changePage }: OverrideProps) {
       setIsError(true);
     }
   };
+  const handleBackButtonClick = () => {
+    setInput("");
+    changePage(0);
+  };
   return (
     <Flex
       style={{
@@ -96,7 +100,11 @@ export default function OverridePage({ changePage }: OverrideProps) {
           Submit
         </Button>
       </Flex>
-      <Button width="100%" marginBottom="32px" onClick={() => changePage(0)}>
+      <Button
+        width="100%"
+        marginBottom="32px"
+        onClick={() => handleBackButtonClick}
+      >
         Back to scanner
       </Button>
     </Flex>
