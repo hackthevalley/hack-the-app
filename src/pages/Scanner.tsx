@@ -92,7 +92,7 @@ export default function Scanner() {
         height: "100svh",
         flexDirection: "column",
         alignItems: "center",
-        // marginTop: "16px",
+        marginTop: "16px",
         marginRight: "16px",
         marginLeft: "16px",
         justifyContent: "space-between",
@@ -110,7 +110,7 @@ export default function Scanner() {
           }}
         />
       </Flex>
-      <Button width="100%" marginBottom="16px" onClick={() => changePage(1)}>
+      <Button width="100%" marginBottom="32px" onClick={() => changePage(1)}>
         Haven't signed up?
       </Button>
     </Flex>
