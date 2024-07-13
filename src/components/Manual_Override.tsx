@@ -103,7 +103,7 @@ export default function OverridePage({ changePage }: OverrideProps) {
       <Button
         width="100%"
         marginBottom="32px"
-        onClick={() => handleBackButtonClick}
+        onClick={() => handleBackButtonClick()}
       >
         Back to scanner
       </Button>
