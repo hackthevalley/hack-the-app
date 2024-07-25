@@ -8,6 +8,8 @@ import { Button, Text, Flex } from "@chakra-ui/react";
 import { useUser } from "../components/Authentication";
 import { Navigate } from "react-router-dom";
 import OverridePage from "../components/Manual_Override";
+import Hackerinfo from "../components/HackerInfo";
+import HackerInfo from "../components/HackerInfo";
 
 const usePage = (initialValue = 0) => {
   const [page, setPage] = useState(initialValue);
@@ -86,6 +88,10 @@ export default function Scanner() {
     return <OverridePage changePage={changePage} />;
   }
 
+  if (page == 2) {
+    return <HackerInfo />;
+  }
+
   return (
     <Flex
       style={{
@@ -112,6 +118,9 @@ export default function Scanner() {
       </Flex>
       <Button width="100%" marginBottom="16px" onClick={() => changePage(1)}>
         Haven't signed up?
+      </Button>
+      <Button width="100%" marginBottom="16px" onClick={() => changePage(2)}>
+        hacker page
       </Button>
     </Flex>
   );
