@@ -37,6 +37,7 @@ export default function OverridePage({ changePage }: OverrideProps) {
         setInput("");
         toast({
           title: "Email link successfully sent",
+          position: "top",
           status: "success",
           isClosable: true,
         });
@@ -45,6 +46,7 @@ export default function OverridePage({ changePage }: OverrideProps) {
       } catch (e: any) {
         toast({
           title: e.response.data.fallbackMessage || "An unknown error occured",
+          position: "top",
           status: "error",
           isClosable: true,
         });
