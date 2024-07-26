@@ -31,12 +31,9 @@ export default function OverridePage({ changePage }: OverrideProps) {
   const handleManualOverride = async () => {
     if (input != "") {
       try {
-        const response = await axiosInstance.post(
-          "/api/admin/send_custom_url",
-          {
-            email: input,
-          }
-        );
+        const response = await axiosInstance.post("/api/admin/walkin", {
+          email: input,
+        });
         setInput("");
         toast({
           title: "Email link successfully sent",
@@ -47,7 +44,7 @@ export default function OverridePage({ changePage }: OverrideProps) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
         toast({
-          title: e.message || "An unknown error occured",
+          title: e.response.data.fallbackMessage || "An unknown error occured",
           status: "error",
           isClosable: true,
         });
