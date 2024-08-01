@@ -20,6 +20,7 @@ import {
     Button,
 } from "@chakra-ui/react";
 import axiosInstance from "../axiosInstance";
+import { toast } from "react-hot-toast";
 
 type MealId = string;
 
@@ -52,8 +53,10 @@ export default function Hackerinfo({
         ["#FF5733", "#C70039", "#900C3F"], // Light mode colors
         ["#0F8767", "#2F52C2", "#00635D"] // Dark mode colors
     );
-
+    const [tabIndex, setTabIndex] = useState(0);
+    const bg = colors[tabIndex];
     const [displayMeals, setDisplayMeals] = useState<Array<MealId>>([]);
+    const spacing = 6;
 
     const handleSwitchChange = (mealId: MealId) => {
         // check if mealTime exists, if exists, remove from list, if dont exist, add to list
@@ -71,7 +74,6 @@ export default function Hackerinfo({
 
     const groupFoodByDay = () => {
         const dayForFood: Record<number, FoodItem[]> = {};
-        console.log(food.allFood);
         for (const item of food.allFood) {
             if (item.day in dayForFood) {
                 dayForFood[item.day].push(item);
@@ -79,7 +81,6 @@ export default function Hackerinfo({
                 dayForFood[item.day] = [item];
             }
         }
-        console.log(dayForFood);
         return dayForFood;
     };
 
@@ -92,19 +93,27 @@ export default function Hackerinfo({
         return false;
     };
     // const compareFood = {};
+    const compareMealChange = async (result: any) => {
+        const toastId = toast.loading("Admitting...");
+        try {
+            const response = await axiosInstance.post("/api/admin/qr/scan", {
+                id: result.data,
+            });
 
-    const [tabIndex, setTabIndex] = useState(0);
-    const bg = colors[tabIndex];
-    const spacing = 6;
+            const foodResponse = await axiosInstance.get("/api/admin/food");
+            const data = response.data;
+            setInfo(data.body);
+            toast.success(data.message, { id: toastId });
+        } catch (error: any) {
+            toast.error(error.data.fallbackMessage, { id: toastId });
+        }
+
+        // changePage(0);
+    };
 
     return (
-        <Flex
-            minW="100%"
-            minH="100%"
-            justifyContent="center"
-            alignItems="center"
-        >
-            <Container py={10}>
+        <Flex minW="100%" minH="100vh" overflow="scroll">
+            <Container pb={10} minH="100vh">
                 {info ? (
                     <div>
                         <Box padding={7} width="100%">
@@ -120,8 +129,11 @@ export default function Hackerinfo({
                                     " " +
                                     info.answers.lastName}
                             </Heading>
-
-                            <HStack mb={spacing} spacing="auto">
+                            <HStack
+                                mb={spacing}
+                                justifyContent="space-between"
+                                fontSize={18}
+                            >
                                 <Box>
                                     <Text as="b">Email</Text>
                                     <Box
@@ -147,7 +159,7 @@ export default function Hackerinfo({
                                 </Box>
                             </HStack>
 
-                            <Box mb={spacing}>
+                            <Box mb={spacing} fontSize={18}>
                                 <Text as="b">Dietary Restrictions</Text>
                                 <Text>{info.answers.dietaryRestrictions}</Text>
                             </Box>
@@ -157,7 +169,7 @@ export default function Hackerinfo({
                                     Meal Schedule
                                 </Text>
                                 <br />
-                                <Text as="i">
+                                <Text as="i" fontSize={18}>
                                     Now Serving: {food.currentMeal ?? "Nothing"}
                                 </Text>
                                 <br />
@@ -168,6 +180,7 @@ export default function Hackerinfo({
                                 isFitted
                                 variant="enclosed"
                                 onChange={(index) => setTabIndex(index)}
+                                width="100%"
                                 bg={bg}
                                 mb={spacing}
                             >
@@ -196,39 +209,60 @@ export default function Hackerinfo({
                                     {Object.entries(groupFoodByDay()).map(
                                         ([day, foodItems]) => {
                                             return (
-                                                <TabPanel h="240">
-                                                    <SimpleGrid
-                                                        columns={2}
-                                                        spacingX="52"
-                                                        spacing="10"
-                                                        alignItems="center"
-                                                        justifyContent="center"
-                                                    >
-                                                        {foodItems.map(
-                                                            (foodItem) => {
-                                                                return (
-                                                                    <div>
-                                                                        <Text fontSize="lg">
-                                                                            {
-                                                                                foodItem.name
-                                                                            }
-                                                                        </Text>
-                                                                        <Switch
-                                                                            size="lg"
-                                                                            isDisabled={isFoodTaken(
-                                                                                foodItem.id
-                                                                            )}
-                                                                            onChange={() =>
-                                                                                handleSwitchChange(
-                                                                                    foodItem.id
-                                                                                )
-                                                                            }
-                                                                        />
-                                                                    </div>
-                                                                );
+                                                <TabPanel
+                                                    display="flex"
+                                                    flexDirection="column"
+                                                    alignItems="center"
+                                                    justifyContent="center"
+                                                    h="240px"
+                                                >
+                                                    <Center>
+                                                        <SimpleGrid
+                                                            // Display column is only 1 if # footItems is 1, else its 2
+                                                            columns={
+                                                                foodItems.length >=
+                                                                2
+                                                                    ? 2
+                                                                    : 1
                                                             }
-                                                        )}
-                                                    </SimpleGrid>
+                                                            w="100%"
+                                                            spacingX="20"
+                                                        >
+                                                            {foodItems.map(
+                                                                (foodItem) => {
+                                                                    return (
+                                                                        <Box
+                                                                            py={
+                                                                                4
+                                                                            }
+                                                                            px={{
+                                                                                base: "0",
+                                                                                sm: "8",
+                                                                                md: "8",
+                                                                            }}
+                                                                        >
+                                                                            <Text fontSize="lg">
+                                                                                {
+                                                                                    foodItem.name
+                                                                                }
+                                                                            </Text>
+                                                                            <Switch
+                                                                                size="lg"
+                                                                                isDisabled={isFoodTaken(
+                                                                                    foodItem.id
+                                                                                )}
+                                                                                onChange={() =>
+                                                                                    handleSwitchChange(
+                                                                                        foodItem.id
+                                                                                    )
+                                                                                }
+                                                                            />
+                                                                        </Box>
+                                                                    );
+                                                                }
+                                                            )}
+                                                        </SimpleGrid>
+                                                    </Center>
                                                 </TabPanel>
                                             );
                                         }
@@ -237,12 +271,12 @@ export default function Hackerinfo({
                             </Tabs>
 
                             <Center>
-                                {/* <Button
+                                <Button
                                     textAlign="center"
                                     onClick={compareMealChange}
                                 >
                                     Save
-                                </Button> */}
+                                </Button>
                             </Center>
                         </Box>
                     </div>
