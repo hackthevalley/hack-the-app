@@ -36,7 +36,7 @@ export default function OverridePage({ changePage }: OverrideProps) {
         });
         setInput("");
         toast({
-          title: "Email link successfully sent",
+          title: "Email successfully marked as walkin",
           position: "top",
           status: "success",
           isClosable: true,
