@@ -57,6 +57,7 @@ export default function Hackerinfo({
         ["#646973", "#646973", "#646973"] // Dark mode colors
     );
     const textColor = useColorModeValue("black", "white"); // For light mode, text is black; for dark mode, text is white
+    const bgColor = useColorModeValue("#dae1eb", "#646973");
     const [tabIndex, setTabIndex] = useState(0);
     const bg = colors[tabIndex];
     const [displayMeals, setDisplayMeals] = useState<Array<MealId>>([]);
@@ -323,12 +324,15 @@ export default function Hackerinfo({
                                     textAlign="center"
                                     onClick={saveHackerInfo}
                                     color={textColor}
+                                    w="50%"
+                                    background={bgColor}
                                     position="fixed"
                                     bottom="5%"
                                     left="50%"  // Position at the horizontal middle but does not account for button's width
                                     transform="translateX(-50%)" // shift the button by half of the button's width to left
                                     zIndex="1000"
                                     border="2px"
+                                    opacity="0.85"
                                 >
                                     Save
                                 </Button>
