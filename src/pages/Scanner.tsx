@@ -24,7 +24,7 @@ export default function Scanner() {
     const [scanCount, setScanCount] = useState(0);
     const [walkinCount, setWalkinCount] = useState(0);
     const videoRef = useRef<HTMLVideoElement | null>(null);
-    const currentFood = foodData?.allFood?.find((f: any)  => f.serving);
+    const currentFood = foodData?.allFood?.find((f: { serving: boolean })  => f.serving);
     const [autoCheck, setAutoCheck] = useState<boolean>(false);
     const { isAuthenticated } = useUser();
     const { page, changePage } = usePage();
@@ -140,19 +140,22 @@ export default function Scanner() {
                         }}
                     />
                 </Flex>
-                <Flex style={{justifyContent: 'center'}}>
-                    <Text> Checking Food? Currently Serving:
-                        <span style={{color: "lime", fontWeight: 'bold'}}>
-                            {currentFood ? `Day ${currentFood?.day} ${currentFood?.name}`: 'Nothing'}
+                <Flex justifyContent="center" alignItems="center" direction="column">
+                    <Text> Checking Food? Currently Serving:</Text>
+                    <Flex>
+                        <span style={{ color: "lime", fontWeight: "bold" }}>
+                        {currentFood
+                            ? `Day ${currentFood?.day} ${currentFood?.name}`
+                            : "Nothing"}
                         </span>
-                    </Text>
-                    <Switch
+                        <Switch
                         size="lg"
                         isDisabled={!currentFood}
                         defaultChecked={autoCheck}
                         ml={8}
                         onChange={() => setAutoCheck(!autoCheck)}
-                    />
+                        />
+                    </Flex>
                 </Flex>
             </Flex>
             <Button
