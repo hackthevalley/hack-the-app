@@ -24,7 +24,7 @@ export default function Scanner() {
     const [scanCount, setScanCount] = useState(0);
     const [walkinCount, setWalkinCount] = useState(0);
     const videoRef = useRef<HTMLVideoElement | null>(null);
-    const currentFood = foodData?.allFood?.find(f  => f.serving);
+    const currentFood = foodData?.allFood?.find((f: any)  => f.serving);
     const [autoCheck, setAutoCheck] = useState<boolean>(false);
     const { isAuthenticated } = useUser();
     const { page, changePage } = usePage();

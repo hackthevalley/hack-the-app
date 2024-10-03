@@ -124,13 +124,12 @@ export default function Hackerinfo({
 
         const toastId = toast.loading("Submitting...");
         try {
-            const response = await axiosInstance.post(
+            await axiosInstance.post(
                 "/api/admin/foodtracker",
                 {
                     food: food
                 }
             );
-            const data = response.data;
             toast.success(food?.length ? "Updated!":"No changes made", { id: toastId });
         } catch (error: any) {
             toast.error(error.message, { id: toastId });
