@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Flex,
     Container,
@@ -33,13 +33,14 @@ interface HackerInfoProps {
     info: any;
     changePage: any;
     food: Food;
+    autoCheck: boolean;
 }
 
 interface FoodItem {
     id: string;
     name: string;
     day: number;
-    endTime: string;
+    serving: boolean;
 }
 
 interface Food {
@@ -51,17 +52,35 @@ export default function Hackerinfo({
     info,
     changePage,
     food,
+    autoCheck,
 }: HackerInfoProps) {
     const colors = useColorModeValue(
         ["#dae1eb", "#dae1eb", "#dae1eb"], // Light mode colors for each tab
         ["#646973", "#646973", "#646973"] // Dark mode colors
     );
+    // returns boolean if food is taken; aka mealId is in user's
+    const isFoodTaken = (mealId: MealId): boolean => {
+        for (const item of info.food) {
+            if (item.serving === mealId) {
+                return true;
+            }
+        }
+        return false;
+    };
     const textColor = useColorModeValue("black", "white"); // For light mode, text is black; for dark mode, text is white
     const bgColor = useColorModeValue("#dae1eb", "#646973");
+    const currentFood = food.allFood.find(f => f.serving);
     const [tabIndex, setTabIndex] = useState(0);
     const bg = colors[tabIndex];
-    const [displayMeals, setDisplayMeals] = useState<Array<MealId>>([]);
+    const [displayMeals, setDisplayMeals] = useState<Array<MealId>>((currentFood && autoCheck && !isFoodTaken(currentFood?.id)) ? [currentFood.id]:[]);
     const spacing = 6;
+
+    useEffect(() => {
+        if (autoCheck && currentFood && isFoodTaken(currentFood.id)) {
+            toast.dismiss()
+            toast.error("Hacker has already had: Day " + currentFood.day + " " + currentFood.name)
+        }
+    }, [info])
 
     const handleSwitchChange = (mealId: MealId) => {
         // This method adds food items to displayMeal array when switch is turned on (aka when user eats a meal, this meal is added to displayMeal)
@@ -82,6 +101,12 @@ export default function Hackerinfo({
     // This takes all the food and groups them by day (E.g. day1 groups up dinner only, day2 groups up breakfast, lunch, dinner, day3 groups up breakfast only)
     const groupFoodByDay = () => {
         const dayForFood: Record<number, FoodItem[]> = {};
+        const mealOrder = {
+            Breakfast: 1,
+            Lunch: 2,
+            Dinner: 3,
+        };
+
         for (const item of food.allFood) {
             if (item.day in dayForFood) {
                 dayForFood[item.day].push(item);
@@ -89,18 +114,17 @@ export default function Hackerinfo({
                 dayForFood[item.day] = [item];
             }
         }
+        for (const day in dayForFood) {
+            dayForFood[day] = dayForFood[day].sort((a, b) => {
+                return (
+                    mealOrder[a.name as keyof typeof mealOrder] -
+                    mealOrder[b.name as keyof typeof mealOrder]
+                );
+            });
+      }
         return dayForFood;
     };
 
-    // returns boolean if food is taken; aka mealId is in user's
-    const isFoodTaken = (mealId: MealId): boolean => {
-        for (const item of info.food) {
-            if (item.serving === mealId) {
-                return true;
-            }
-        }
-        return false;
-    };
 
     const saveHackerInfo = async () => {
         // Request body for /api/forms/foodtracker/
@@ -109,20 +133,18 @@ export default function Hackerinfo({
             food.push({
                 "application": info.id, // hacker id
                 "serving": item, // servingid for each meal had
-
             })
         }
 
         const toastId = toast.loading("Submitting...");
         try {
-            const response = await axiosInstance.post(
+            await axiosInstance.post(
                 "/api/admin/foodtracker",
                 {
                     food: food
                 }
             );
-            const data = response.data;
-            toast.success(data.message, { id: toastId });
+            toast.success(food?.length ? "Updated!":"No changes made", { id: toastId });
         } catch (error: any) {
             toast.error(error.message, { id: toastId });
         }
@@ -237,7 +259,7 @@ export default function Hackerinfo({
                                         </Text>
                                         <br />
                                         <Text as="i" fontSize={18}>
-                                            Now Serving: {food.currentMeal ?? "Nothing"}
+                                            Now Serving: {currentFood ? `Day ${currentFood.day} ${currentFood.name}` : "Nothing"}
                                         </Text>
                                         <br />
                                     </Box>
@@ -246,6 +268,7 @@ export default function Hackerinfo({
                                         isManual
                                         isFitted
                                         variant="enclosed"
+                                        defaultIndex={currentFood ? currentFood.day-1:0}
                                         onChange={(index) => setTabIndex(index)}
                                         width="100%"
                                         bg={bg}
@@ -281,10 +304,11 @@ export default function Hackerinfo({
                                                                     w="100%"
                                                                 >
                                                                     {foodItems.map(
-                                                                        (foodItem: FoodItem) => {
+                                                                        (foodItem: FoodItem, key) => {
                                                                             return (
                                                                                 <Flex
                                                                                     mb={8}
+                                                                                    key={key}
                                                                                 >
                                                                                     <Text fontSize="lg">
                                                                                         {
@@ -295,14 +319,9 @@ export default function Hackerinfo({
                                                                                     <Switch
                                                                                         size="lg"
                                                                                         ml={12}
-                                                                                        isDisabled={isFoodTaken(
-                                                                                            foodItem.id
-                                                                                        )}
-                                                                                        onChange={() =>
-                                                                                            handleSwitchChange(
-                                                                                                foodItem.id
-                                                                                            )
-                                                                                        }
+                                                                                        isDisabled={isFoodTaken(foodItem.id)}
+                                                                                        defaultChecked={(foodItem.id === currentFood?.id && autoCheck) || isFoodTaken(foodItem.id)}
+                                                                                        onChange={() => handleSwitchChange(foodItem.id)}
                                                                                     />
                                                                                 </Flex>
                                                                             );
@@ -334,7 +353,7 @@ export default function Hackerinfo({
                                     border="2px"
                                     opacity="0.85"
                                 >
-                                    Save
+                                    {displayMeals?.length ? "Save":"Next"}
                                 </Button>
                             </Center>
 

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { toast } from "react-hot-toast";
 import QrScanner from "qr-scanner";
 import axiosInstance from "../axiosInstance";
-import { Button, Text, Flex } from "@chakra-ui/react";
+import { Button, Text, Flex, Switch } from "@chakra-ui/react";
 import { useUser } from "../components/Authentication";
 import { Navigate } from "react-router-dom";
 import OverridePage from "../components/Manual_Override";
@@ -20,9 +20,12 @@ const usePage = (initialValue = 0) => {
 export default function Scanner() {
     const duplicates = new Set();
     const [info, setInfo] = useState<any>(null);
-    const [allFood, setAllFood] = useState<any>(null);
-    const [count, setCount] = useState(0);
+    const [foodData, setFoodData] = useState<any>(null);
+    const [scanCount, setScanCount] = useState(0);
+    const [walkinCount, setWalkinCount] = useState(0);
     const videoRef = useRef<HTMLVideoElement | null>(null);
+    const currentFood = foodData?.allFood?.find((f: { serving: boolean })  => f.serving);
+    const [autoCheck, setAutoCheck] = useState<boolean>(false);
     const { isAuthenticated } = useUser();
     const { page, changePage } = usePage();
 
@@ -44,13 +47,12 @@ export default function Scanner() {
                     }
                 );
 
-                const foodResponse = await axiosInstance.get("/api/admin/food");
                 const data = response.data;
                 setInfo(data.body);
-                setCount(data.scannedCount);
+                setScanCount(data.scannedCount);
+                setWalkinCount(data.walkinCount)
                 toast.success(data.message, { id: toastId });
 
-                setAllFood(foodResponse.data);
             } catch (error: any) {
                 toast.error(error?.response?.data?.fallbackMessage, { id: toastId });
             }
@@ -58,6 +60,14 @@ export default function Scanner() {
     };
 
     useEffect(() => {
+        axiosInstance.get("/api/admin/food")
+            .then((foodResponse) => {
+                setFoodData(foodResponse.data);
+            })
+            .catch(() => {
+                toast.error("Failed to retrieve food data");
+                setFoodData(null);
+            })
         let qrScanner: QrScanner | null = null;
         if (videoRef.current) {
             qrScanner = new QrScanner(
@@ -100,7 +110,7 @@ export default function Scanner() {
 
     if (page == 2) {
         return (
-            <HackerInfo info={info} changePage={changePage} food={allFood} />
+            <HackerInfo autoCheck={autoCheck} info={info} changePage={changePage} food={foodData} />
         );
     }
 
@@ -116,17 +126,37 @@ export default function Scanner() {
                 justifyContent: "space-between",
                 overflow: "hidden",
             }}
-        >
+        > 
             <Flex style={{ flexDirection: "column", gap: "8px" }}>
-                <Text textAlign="center">{count} hackers have checked in!</Text>
-                <video
-                    ref={videoRef}
-                    style={{
-                        width: "50wh",
-                        // maxWidth: "500px",
-                        border: "1px solid black",
-                    }}
-                />
+                <Flex style={{ flexDirection: "column", gap: "8px" }}>
+                    <Text textAlign="center">{scanCount} hackers have scanned in!</Text>
+                    <Text textAlign="center">{walkinCount} hackers have walked in!</Text>
+                    <video
+                        ref={videoRef}
+                        style={{
+                            width: "50wh",
+                            // maxWidth: "500px",
+                            border: "1px solid black",
+                        }}
+                    />
+                </Flex>
+                <Flex justifyContent="center" alignItems="center" direction="column">
+                    <Text> Checking Food? Currently Serving:</Text>
+                    <Flex>
+                        <span style={{ color: "lime", fontWeight: "bold" }}>
+                        {currentFood
+                            ? `Day ${currentFood?.day} ${currentFood?.name}`
+                            : "Nothing"}
+                        </span>
+                        <Switch
+                        size="lg"
+                        isDisabled={!currentFood}
+                        defaultChecked={autoCheck}
+                        ml={8}
+                        onChange={() => setAutoCheck(!autoCheck)}
+                        />
+                    </Flex>
+                </Flex>
             </Flex>
             <Button
                 width="100%"
