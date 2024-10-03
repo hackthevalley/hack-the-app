@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Flex,
     Container,
@@ -75,6 +75,13 @@ export default function Hackerinfo({
     const [displayMeals, setDisplayMeals] = useState<Array<MealId>>((currentFood && autoCheck && !isFoodTaken(currentFood?.id)) ? [currentFood.id]:[]);
     const spacing = 6;
 
+    useEffect(() => {
+        if (autoCheck && currentFood && isFoodTaken(currentFood.id)) {
+            toast.dismiss()
+            toast.error("Hacker has already had: Day " + currentFood.day + " " + currentFood.name)
+        }
+    }, [info])
+
     const handleSwitchChange = (mealId: MealId) => {
         // This method adds food items to displayMeal array when switch is turned on (aka when user eats a meal, this meal is added to displayMeal)
         // All items in this displayMeal array will be send to backend to be removed
@@ -124,7 +131,7 @@ export default function Hackerinfo({
                 }
             );
             const data = response.data;
-            toast.success(data.message, { id: toastId });
+            toast.success(data?.message ? "Updated!":"No changes made", { id: toastId });
         } catch (error: any) {
             toast.error(error.message, { id: toastId });
         }
@@ -283,11 +290,12 @@ export default function Hackerinfo({
                                                                     columns={1}
                                                                     w="100%"
                                                                 >
-                                                                    {foodItems.map(
-                                                                        (foodItem: FoodItem) => {
+                                                                    {foodItems.sort((a,b)=>a.name.localeCompare(b.name)).map(
+                                                                        (foodItem: FoodItem, key) => {
                                                                             return (
                                                                                 <Flex
                                                                                     mb={8}
+                                                                                    key={key}
                                                                                 >
                                                                                     <Text fontSize="lg">
                                                                                         {
@@ -332,7 +340,7 @@ export default function Hackerinfo({
                                     border="2px"
                                     opacity="0.85"
                                 >
-                                    Save
+                                    {displayMeals?.length ? "Save":"Next"}
                                 </Button>
                             </Center>
 

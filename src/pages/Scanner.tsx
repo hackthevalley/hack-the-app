@@ -6,7 +6,7 @@ import QrScanner from "qr-scanner";
 import axiosInstance from "../axiosInstance";
 import { Button, Text, Flex, Switch } from "@chakra-ui/react";
 import { useUser } from "../components/Authentication";
-import { json, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import OverridePage from "../components/Manual_Override";
 import HackerInfo from "../components/Hackerinfo";
 
@@ -21,7 +21,8 @@ export default function Scanner() {
     const duplicates = new Set();
     const [info, setInfo] = useState<any>(null);
     const [foodData, setFoodData] = useState<any>(null);
-    const [count, setCount] = useState(0);
+    const [scanCount, setScanCount] = useState(0);
+    const [walkinCount, setWalkinCount] = useState(0);
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const currentFood = foodData?.allFood?.find(f  => f.serving);
     const [autoCheck, setAutoCheck] = useState<boolean>(false);
@@ -29,7 +30,6 @@ export default function Scanner() {
     const { page, changePage } = usePage();
 
     const handleScan = async (result: any) => {
-        console.log(result, foodData)
         if (result && result.data != "") {
             // dedup logic
             if (duplicates.has(result.data)) return;
@@ -49,7 +49,8 @@ export default function Scanner() {
 
                 const data = response.data;
                 setInfo(data.body);
-                setCount(data.scannedCount);
+                setScanCount(data.scannedCount);
+                setWalkinCount(data.walkinCount)
                 toast.success(data.message, { id: toastId });
 
             } catch (error: any) {
@@ -61,11 +62,10 @@ export default function Scanner() {
     useEffect(() => {
         axiosInstance.get("/api/admin/food")
             .then((foodResponse) => {
-                console.log(foodResponse.data)
                 setFoodData(foodResponse.data);
             })
-            .catch((error) => {
-                console.log(error);
+            .catch(() => {
+                toast.error("Failed to retrieve food data");
                 setFoodData(null);
             })
         let qrScanner: QrScanner | null = null;
@@ -129,7 +129,8 @@ export default function Scanner() {
         > 
             <Flex style={{ flexDirection: "column", gap: "8px" }}>
                 <Flex style={{ flexDirection: "column", gap: "8px" }}>
-                    <Text textAlign="center">{count} hackers have checked in!</Text>
+                    <Text textAlign="center">{scanCount} hackers have scanned in!</Text>
+                    <Text textAlign="center">{walkinCount} hackers have walked in!</Text>
                     <video
                         ref={videoRef}
                         style={{
@@ -140,8 +141,18 @@ export default function Scanner() {
                     />
                 </Flex>
                 <Flex style={{justifyContent: 'center'}}>
-                    <Text> Checking Food? <b>Currently Serving: <span style={{color: "lime"}}>Day {currentFood?.day} {currentFood?.name}</span> </b></Text>
-                    <Switch size="lg" defaultChecked={autoCheck} ml={8} onChange={() => setAutoCheck(!autoCheck)} />
+                    <Text> Checking Food? Currently Serving:
+                        <span style={{color: "lime", fontWeight: 'bold'}}>
+                            {currentFood ? `Day ${currentFood?.day} ${currentFood?.name}`: 'Nothing'}
+                        </span>
+                    </Text>
+                    <Switch
+                        size="lg"
+                        isDisabled={!currentFood}
+                        defaultChecked={autoCheck}
+                        ml={8}
+                        onChange={() => setAutoCheck(!autoCheck)}
+                    />
                 </Flex>
             </Flex>
             <Button

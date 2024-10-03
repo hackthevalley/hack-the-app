@@ -31,7 +31,7 @@ export default function OverridePage({ changePage }: OverrideProps) {
   const handleManualOverride = async () => {
     if (input != "") {
       try {
-        const response = await axiosInstance.post("/api/admin/walkin", {
+        await axiosInstance.post("/api/admin/walkin", {
           email: input,
         });
         setInput("");
@@ -41,7 +41,6 @@ export default function OverridePage({ changePage }: OverrideProps) {
           status: "success",
           isClosable: true,
         });
-        console.log(response.data);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
         toast({
