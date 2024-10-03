@@ -101,6 +101,12 @@ export default function Hackerinfo({
     // This takes all the food and groups them by day (E.g. day1 groups up dinner only, day2 groups up breakfast, lunch, dinner, day3 groups up breakfast only)
     const groupFoodByDay = () => {
         const dayForFood: Record<number, FoodItem[]> = {};
+        const mealOrder = {
+            Breakfast: 1,
+            Lunch: 2,
+            Dinner: 3,
+        };
+
         for (const item of food.allFood) {
             if (item.day in dayForFood) {
                 dayForFood[item.day].push(item);
@@ -108,6 +114,14 @@ export default function Hackerinfo({
                 dayForFood[item.day] = [item];
             }
         }
+        for (const day in dayForFood) {
+            dayForFood[day] = dayForFood[day].sort((a, b) => {
+                return (
+                    mealOrder[a.name as keyof typeof mealOrder] -
+                    mealOrder[b.name as keyof typeof mealOrder]
+                );
+            });
+      }
         return dayForFood;
     };
 
@@ -289,7 +303,7 @@ export default function Hackerinfo({
                                                                     columns={1}
                                                                     w="100%"
                                                                 >
-                                                                    {foodItems.sort((a,b)=>a.name.localeCompare(b.name)).map(
+                                                                    {foodItems.map(
                                                                         (foodItem: FoodItem, key) => {
                                                                             return (
                                                                                 <Flex
