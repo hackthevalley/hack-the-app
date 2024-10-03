@@ -52,7 +52,7 @@ export default function Scanner() {
 
                 setAllFood(foodResponse.data);
             } catch (error: any) {
-                toast.error(error.response.data.fallbackMessage, { id: toastId });
+                toast.error(error?.response?.data?.fallbackMessage, { id: toastId });
             }
         }
     };
