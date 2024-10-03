@@ -104,7 +104,7 @@ export default function Hackerinfo({
 
     const saveHackerInfo = async () => {
         // Request body for /api/forms/foodtracker/
-        var food = [];
+        const food = [];
         for(const item of displayMeals) {
             food.push({
                 "application": info.id, // hacker id

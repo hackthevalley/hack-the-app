@@ -52,7 +52,7 @@ export default function Scanner() {
 
                 setAllFood(foodResponse.data);
             } catch (error: any) {
-                toast.error(error.data.fallbackMessage, { id: toastId });
+                toast.error(error?.response?.data?.fallbackMessage, { id: toastId });
             }
         }
     };
@@ -134,13 +134,6 @@ export default function Scanner() {
                 onClick={() => changePage(1)}
             >
                 Haven't signed up?
-            </Button>
-            <Button
-                width="100%"
-                marginBottom="16px"
-                onClick={() => changePage(2)}
-            >
-                hacker page
             </Button>
         </Flex>
     );
