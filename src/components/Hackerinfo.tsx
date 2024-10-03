@@ -131,7 +131,7 @@ export default function Hackerinfo({
                 }
             );
             const data = response.data;
-            toast.success(data?.message ? "Updated!":"No changes made", { id: toastId });
+            toast.success(food?.length ? "Updated!":"No changes made", { id: toastId });
         } catch (error: any) {
             toast.error(error.message, { id: toastId });
         }
