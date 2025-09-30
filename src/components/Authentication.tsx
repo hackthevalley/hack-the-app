@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-refresh/only-export-components */
-// import jwt from "jsonwebtoken";
 import * as jose from "jose";
 import PropTypes from "prop-types";
 import {
@@ -17,7 +16,7 @@ interface IUserContext {
   logout: () => void;
   loading: boolean;
   isAuthenticated: boolean;
-  user: any; // Update with actual user type if possible
+  user: any;
 }
 
 interface IAuthProviderProps {
@@ -45,8 +44,9 @@ export function AuthProvider({ children }: IAuthProviderProps) {
     try {
       localStorage.setItem("auth-token", token);
       const payload: any = jose.decodeJwt(token);
-      if (!payload.isStaffUser) throw new Error("You do not have access");
-      const response = await axiosInstance.get("/api/account/users/me");
+      if (!payload.scopes?.includes("admin"))
+        throw new Error("You do not have access");
+      const response = await axiosInstance.get("/account/me");
       setIsAuthenticated(true);
       setUser(response.data);
       return response.data;
@@ -64,13 +64,11 @@ export function AuthProvider({ children }: IAuthProviderProps) {
         return;
       }
       try {
-        const response = await axiosInstance.post(
-          "/api/account/auth/token/refresh",
-          { token }
-        );
-        if (!response.data.payload.isStaffUser)
+        const response = await axiosInstance.post("/account/refresh");
+        const payload: any = jose.decodeJwt(response.data.access_token);
+        if (!payload.scopes?.includes("admin"))
           throw new Error("You do not have access");
-        localStorage.setItem("auth-token", response.data.token);
+        localStorage.setItem("auth-token", response.data.access_token);
         setLoading(false);
         setIsAuthenticated(true);
       } catch (err) {
@@ -82,7 +80,7 @@ export function AuthProvider({ children }: IAuthProviderProps) {
     };
     let timer: number;
     handler().then(() => {
-      timer = window.setInterval(handler, 10000);
+      timer = window.setInterval(handler, 30000);
     });
 
     return () => {
