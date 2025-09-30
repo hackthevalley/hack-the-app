@@ -31,12 +31,13 @@ export default function OverridePage({ changePage }: OverrideProps) {
   const handleManualOverride = async () => {
     if (input != "") {
       try {
-        await axiosInstance.post("/admin/walkin", {
+        const response = await axiosInstance.post("/admin/forms/walkin", {
           email: input,
         });
         setInput("");
         toast({
-          title: "Email successfully marked as walkin",
+          title:
+            response.data.message || "Email successfully marked as walk-in",
           position: "top",
           status: "success",
           isClosable: true,
@@ -44,7 +45,10 @@ export default function OverridePage({ changePage }: OverrideProps) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
         toast({
-          title: e.response.data.fallbackMessage || "An unknown error occured",
+          title:
+            e.response?.data?.detail?.fallbackMessage ||
+            e.response?.data?.detail ||
+            "An unknown error occurred",
           position: "top",
           status: "error",
           isClosable: true,
