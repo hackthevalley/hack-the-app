@@ -41,14 +41,23 @@ export default function Login({ next }: LoginProps) {
       onSubmit={async (values: any) => {
         const loadingToast = toast.loading("Signing in...");
         try {
+          // Send as form-urlencoded data as backend expects OAuth2PasswordRequestForm
+          const formData = new URLSearchParams();
+          formData.append("username", values.email);
+          formData.append("password", values.password);
+
           const response = await axiosInstance.post(
-            "/api/account/auth/token/create/basic",
-            { email: values.email, password: values.password }
+            "/account/login",
+            formData.toString(),
+            {
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+            }
           );
-          const jwt = response.data;
           toast.dismiss(loadingToast);
           try {
-            await login(jwt.token);
+            await login(response.data.access_token);
             toast.success("Signed in");
             navigate(next);
           } catch (err: any) {
@@ -56,8 +65,8 @@ export default function Login({ next }: LoginProps) {
           }
         } catch (err: any) {
           toast.dismiss(loadingToast);
-          if (err.status === 400 && err.data && err.data.nonFieldErrors) {
-            toast.error(err.data.nonFieldErrors[0]);
+          if (err.response?.data?.detail) {
+            toast.error(err.response.data.detail);
           } else {
             toast.error("Unexpected error. Try again later.");
           }
