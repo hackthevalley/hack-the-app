@@ -69,7 +69,10 @@ export function AuthProvider({ children }: IAuthProviderProps) {
       try {
         const response = await axiosInstance.post("/account/refresh");
         const payload: any = jose.decodeJwt(response.data.access_token);
-        if (!payload.scopes?.includes("admin"))
+        if (
+          !payload.scopes?.includes("admin") &&
+          !payload.scopes?.includes("volunteer")
+        )
           throw new Error("You do not have access");
         localStorage.setItem("auth-token", response.data.access_token);
         setLoading(false);
