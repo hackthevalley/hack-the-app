@@ -42,7 +42,7 @@ export default function Scanner() {
       // admit
       const toastId = toast.loading("Admitting...");
       try {
-        const response = await axiosInstance.post("/admin/qr/scan", {
+        const response = await axiosInstance.post("/volunteer/qr/scan", {
           id: result.data,
         });
 
@@ -59,7 +59,7 @@ export default function Scanner() {
 
   useEffect(() => {
     axiosInstance
-      .get("/admin/food")
+      .get("/volunteer/food")
       .then((foodResponse) => {
         setFoodData(foodResponse.data);
       })

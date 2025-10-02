@@ -146,7 +146,7 @@ export default function Hackerinfo({
 
     const toastId = toast.loading("Submitting...");
     try {
-      await axiosInstance.post("/admin/food/foodtracker", {
+      await axiosInstance.post("/volunteer/food/foodtracker", {
         food: food,
       });
       toast.success(food?.length ? "Updated!" : "No changes made", {

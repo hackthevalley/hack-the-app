@@ -44,7 +44,10 @@ export function AuthProvider({ children }: IAuthProviderProps) {
     try {
       localStorage.setItem("auth-token", token);
       const payload: any = jose.decodeJwt(token);
-      if (!payload.scopes?.includes("admin"))
+      if (
+        !payload.scopes?.includes("admin") &&
+        !payload.scopes?.includes("volunteer")
+      )
         throw new Error("You do not have access");
       const response = await axiosInstance.get("/account/me");
       setIsAuthenticated(true);
