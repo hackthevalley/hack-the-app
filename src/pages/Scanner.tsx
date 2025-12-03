@@ -42,7 +42,7 @@ export default function Scanner() {
       // admit
       const toastId = toast.loading("Admitting...");
       try {
-        const response = await axiosInstance.post("/volunteer/qr/scan", {
+        const response = await axiosInstance.post("/volunteer/check-ins", {
           id: result.data,
         });
 

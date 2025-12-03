@@ -67,7 +67,7 @@ export function AuthProvider({ children }: IAuthProviderProps) {
         return;
       }
       try {
-        const response = await axiosInstance.post("/account/refresh");
+        const response = await axiosInstance.post("/account/tokens");
         const payload: any = jose.decodeJwt(response.data.access_token);
         if (
           !payload.scopes?.includes("admin") &&
