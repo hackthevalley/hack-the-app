@@ -31,7 +31,7 @@ export default function OverridePage({ changePage }: OverrideProps) {
   const handleManualOverride = async () => {
     if (input != "") {
       try {
-        const response = await axiosInstance.post("/volunteer/forms/walkin", {
+        const response = await axiosInstance.post("/volunteer/forms/walk-ins", {
           email: input,
         });
         setInput("");

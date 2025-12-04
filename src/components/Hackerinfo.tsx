@@ -135,7 +135,7 @@ export default function Hackerinfo({
   };
 
   const saveHackerInfo = async () => {
-    // Request body for /admin/food/foodtracker
+    // Request body for /volunteer/food/tracking
     const food = [];
     for (const item of displayMeals) {
       food.push({
@@ -146,7 +146,7 @@ export default function Hackerinfo({
 
     const toastId = toast.loading("Submitting...");
     try {
-      await axiosInstance.post("/volunteer/food/foodtracker", {
+      await axiosInstance.post("/volunteer/food/tracking", {
         food: food,
       });
       toast.success(food?.length ? "Updated!" : "No changes made", {

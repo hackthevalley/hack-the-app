@@ -47,7 +47,7 @@ export default function Login({ next }: LoginProps) {
           formData.append("password", values.password);
 
           const response = await axiosInstance.post(
-            "/account/login",
+            "/account/sessions",
             formData.toString(),
             {
               headers: {
