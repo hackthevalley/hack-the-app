@@ -6,7 +6,6 @@ import {
   Box,
   Button,
   Card,
-  CardBody,
   Center,
   Grid,
   Heading,
@@ -15,14 +14,10 @@ import {
   Switch,
   Text,
   Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
-  useColorModeValue,
 } from "@chakra-ui/react";
 import axiosInstance from "../axiosInstance";
 import { toast } from "react-hot-toast";
+import { useTheme } from "next-themes";
 
 type MealId = string;
 
@@ -53,10 +48,11 @@ export default function Hackerinfo({
   food,
   autoCheck,
 }: HackerInfoProps) {
-  const colors = useColorModeValue(
-    ["#dae1eb", "#dae1eb", "#dae1eb"], // Light mode colors for each tab
-    ["#646973", "#646973", "#646973"] // Dark mode colors
-  );
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+  const colors = isDark
+    ? ["#646973", "#646973", "#646973"]
+    : ["#dae1eb", "#dae1eb", "#dae1eb"];
   const takenMealIds = useMemo(
     () =>
       new Set<MealId>(
@@ -68,16 +64,18 @@ export default function Hackerinfo({
               )
           : []
       ),
-    [info?.food]
+    [info]
   );
   const isFoodTaken = useCallback(
     (mealId: MealId): boolean => takenMealIds.has(mealId),
     [takenMealIds]
   );
-  const textColor = useColorModeValue("black", "white"); // For light mode, text is black; for dark mode, text is white
-  const bgColor = useColorModeValue("#dae1eb", "#646973");
+  const textColor = isDark ? "white" : "black";
+  const bgColor = isDark ? "#646973" : "#dae1eb";
   const currentFood = food.allFood.find((f) => f.serving);
-  const [tabIndex, setTabIndex] = useState(0);
+  const [tabIndex, setTabIndex] = useState(
+    currentFood ? currentFood.day - 1 : 0
+  );
   const bg = colors[tabIndex];
   const [displayMeals, setDisplayMeals] = useState<Array<MealId>>(
     currentFood && autoCheck && !isFoodTaken(currentFood?.id)
@@ -181,8 +179,8 @@ export default function Hackerinfo({
                 Hi, {info.answers.firstName + " " + info.answers.lastName}
               </Heading>
 
-              <Card>
-                <CardBody>
+              <Card.Root>
+                <Card.Body>
                   <Grid
                     templateColumns="3fr"
                     w="100%"
@@ -248,11 +246,11 @@ export default function Hackerinfo({
                       </Box>
                     </Flex>
                   </Grid>
-                </CardBody>
-              </Card>
+                </Card.Body>
+              </Card.Root>
 
-              <Card my={spacing}>
-                <CardBody>
+              <Card.Root my={spacing}>
+                <Card.Body>
                   <Center mb={4}>
                     <Text fontSize={18} as="b">
                       Dietary Restrictions
@@ -263,11 +261,11 @@ export default function Hackerinfo({
                       {info.answers.dietaryRestrictions}
                     </Text>
                   </Center>
-                </CardBody>
-              </Card>
+                </Card.Body>
+              </Card.Root>
 
-              <Card>
-                <CardBody>
+              <Card.Root>
+                <Card.Body>
                   <Box mb={spacing}>
                     <Text fontSize="4xl" as="b">
                       Meal Schedule
@@ -282,38 +280,41 @@ export default function Hackerinfo({
                     <br />
                   </Box>
 
-                  <Tabs
-                    isManual
-                    isFitted
+                  <Tabs.Root
+                    lazyMount
+                    fitted
                     variant="enclosed"
-                    defaultIndex={currentFood ? currentFood.day - 1 : 0}
-                    onChange={(index) => setTabIndex(index)}
+                    value={`day-${tabIndex + 1}`}
+                    onValueChange={({ value }) =>
+                      setTabIndex(Number(value.replace("day-", "")) - 1)
+                    }
                     width="100%"
                     bg={bg}
                     mb={spacing}
                   >
-                    <TabList>
+                    <Tabs.List>
                       {["Day 1", "Day 2", "Day 3"].map((day, index) => (
-                        <Tab
+                        <Tabs.Trigger
+                          value={`day-${index + 1}`}
                           key={index}
                           _focus={{ boxShadow: "none" }}
                           borderWidth="3px"
                           color={textColor}
                         >
                           {day}
-                        </Tab>
+                        </Tabs.Trigger>
                       ))}
-                    </TabList>
+                    </Tabs.List>
 
-                    <TabPanels>
-                      {Object.values(groupFoodByDay()).map(
+                    {Object.values(groupFoodByDay()).map(
                         (foodItems: FoodItem[], index: number) => {
                           {
                             /* {Object.entries(groupFoodByDay()).map(
                                                 ([day, foodItems]) => { */
                           }
                           return (
-                            <TabPanel
+                            <Tabs.Content
+                              value={`day-${index + 1}`}
                               display="flex"
                               flexDirection="column"
                               alignItems="center"
@@ -330,32 +331,36 @@ export default function Hackerinfo({
                                           {foodItem.name}
                                         </Text>
                                         <Spacer />
-                                        <Switch
+                                        <Switch.Root
                                           size="lg"
                                           ml={12}
-                                          isDisabled={isFoodTaken(foodItem.id)}
+                                          disabled={isFoodTaken(foodItem.id)}
                                           defaultChecked={
                                             (foodItem.id === currentFood?.id &&
                                               autoCheck) ||
                                             isFoodTaken(foodItem.id)
                                           }
-                                          onChange={() =>
+                                          onCheckedChange={() =>
                                             handleSwitchChange(foodItem.id)
                                           }
-                                        />
+                                        >
+                                          <Switch.HiddenInput />
+                                          <Switch.Control>
+                                            <Switch.Thumb />
+                                          </Switch.Control>
+                                        </Switch.Root>
                                       </Flex>
                                     );
                                   })}
                                 </SimpleGrid>
                               </Center>
-                            </TabPanel>
+                            </Tabs.Content>
                           );
                         }
                       )}
-                    </TabPanels>
-                  </Tabs>
-                </CardBody>
-              </Card>
+                  </Tabs.Root>
+                </Card.Body>
+              </Card.Root>
 
               <Center mt={4}>
                 <Button

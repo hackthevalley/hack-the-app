@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-refresh/only-export-components */
 import * as jose from "jose";
-import PropTypes from "prop-types";
 import {
   useContext,
   useEffect,
@@ -75,6 +74,8 @@ export function AuthProvider({ children }: IAuthProviderProps) {
         )
           throw new Error("You do not have access");
         localStorage.setItem("auth-token", response.data.access_token);
+        const currentUser = await axiosInstance.get("/account/me");
+        setUser(currentUser.data);
         setLoading(false);
         setIsAuthenticated(true);
       } catch (err) {
@@ -92,16 +93,7 @@ export function AuthProvider({ children }: IAuthProviderProps) {
       window.clearInterval(timer);
     };
   }, [logout]);
-  useEffect(() => {
-    const token = localStorage.getItem("auth-token");
-    if (token) {
-      login(token)
-        .then(() => setLoading(false))
-        .catch(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
-  }, [login]);
+
   return (
     <UserContext.Provider
       value={{ login, logout, loading, isAuthenticated, user }}
@@ -110,7 +102,3 @@ export function AuthProvider({ children }: IAuthProviderProps) {
     </UserContext.Provider>
   );
 }
-
-AuthProvider.propTypes = {
-  children: PropTypes.node,
-};

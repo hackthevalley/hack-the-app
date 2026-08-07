@@ -2,21 +2,18 @@ import {
   Button,
   Flex,
   Text,
-  FormControl,
-  FormLabel,
-  FormErrorMessage,
+  Field,
   Input,
-  useToast,
 } from "@chakra-ui/react";
 import axiosInstance from "../axiosInstance";
 import { SetStateAction, useState } from "react";
+import { toast } from "react-hot-toast";
 
 interface OverrideProps {
   changePage: (pageNumber: number) => void;
 }
 
 export default function OverridePage({ changePage }: OverrideProps) {
-  const toast = useToast();
   const [input, setInput] = useState("");
   const [isError, setIsError] = useState(false);
   const handleInputChange = (e: {
@@ -35,24 +32,16 @@ export default function OverridePage({ changePage }: OverrideProps) {
           email: input,
         });
         setInput("");
-        toast({
-          title:
-            response.data.message || "Email successfully marked as walk-in",
-          position: "top",
-          status: "success",
-          isClosable: true,
-        });
+        toast.success(
+          response.data.message || "Email successfully marked as walk-in"
+        );
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
-        toast({
-          title:
-            e.response?.data?.detail?.fallbackMessage ||
+        toast.error(
+          e.response?.data?.detail?.fallbackMessage ||
             e.response?.data?.detail ||
-            "An unknown error occurred",
-          position: "top",
-          status: "error",
-          isClosable: true,
-        });
+            "An unknown error occurred"
+        );
       }
     } else {
       setIsError(true);
@@ -83,20 +72,21 @@ export default function OverridePage({ changePage }: OverrideProps) {
         }}
       >
         <Text textAlign="center">Manual Override Page</Text>
-        <FormControl isInvalid={isError}>
-          <FormLabel>Email</FormLabel>
+        <Field.Root invalid={isError}>
+          <Field.Label htmlFor="walk-in-email">Email</Field.Label>
           <Input
+            id="walk-in-email"
             type="email"
             value={input}
             onChange={handleInputChange}
             width={"100%"}
           />
           {isError ? (
-            <FormErrorMessage>Email is required.</FormErrorMessage>
+            <Field.ErrorText>Email is required.</Field.ErrorText>
           ) : (
             <></>
           )}
-        </FormControl>
+        </Field.Root>
         <Button width="100%" onClick={() => handleManualOverride()}>
           Submit
         </Button>

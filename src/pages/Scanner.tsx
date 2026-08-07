@@ -167,13 +167,18 @@ export default function Scanner() {
                 ? `Day ${currentFood?.day} ${currentFood?.name}`
                 : "Nothing"}
             </span>
-            <Switch
+            <Switch.Root
               size="lg"
-              isDisabled={!currentFood}
+              disabled={!currentFood}
               defaultChecked={autoCheck}
               ml={8}
-              onChange={() => setAutoCheck(!autoCheck)}
-            />
+              onCheckedChange={({ checked }) => setAutoCheck(checked)}
+            >
+              <Switch.HiddenInput />
+              <Switch.Control>
+                <Switch.Thumb />
+              </Switch.Control>
+            </Switch.Root>
           </Flex>
         </Flex>
       </Flex>
