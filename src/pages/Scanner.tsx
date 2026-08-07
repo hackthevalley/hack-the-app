@@ -18,7 +18,8 @@ const usePage = (initialValue = 0) => {
 };
 
 export default function Scanner() {
-  const duplicates = new Set();
+  const recentScansRef = useRef(new Set<string>());
+  const dedupeTimersRef = useRef(new Set<ReturnType<typeof setTimeout>>());
   const [info, setInfo] = useState<any>(null);
   const [foodData, setFoodData] = useState<any>(null);
   const [scanCount, setScanCount] = useState(0);
@@ -33,11 +34,16 @@ export default function Scanner() {
 
   const handleScan = async (result: any) => {
     if (result && result.data != "") {
-      // dedup logic
-      if (duplicates.has(result.data)) return;
-      duplicates.add(result.data);
+      const scanData = result.data as string;
+      if (recentScansRef.current.has(scanData)) return;
+
+      recentScansRef.current.add(scanData);
       const DEDUP_TIMEOUT_MS = 4000;
-      setTimeout(() => duplicates.delete(result.data), DEDUP_TIMEOUT_MS);
+      const timer = setTimeout(() => {
+        recentScansRef.current.delete(scanData);
+        dedupeTimersRef.current.delete(timer);
+      }, DEDUP_TIMEOUT_MS);
+      dedupeTimersRef.current.add(timer);
 
       // admit
       const toastId = toast.loading("Admitting...");
@@ -90,6 +96,15 @@ export default function Scanner() {
       }
     };
   }, [page]);
+
+  useEffect(
+    () => () => {
+      for (const timer of dedupeTimersRef.current) clearTimeout(timer);
+      dedupeTimersRef.current.clear();
+      recentScansRef.current.clear();
+    },
+    []
+  );
 
   useEffect(() => {
     if (info != null) {

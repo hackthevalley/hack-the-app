@@ -78,7 +78,6 @@ export function AuthProvider({ children }: IAuthProviderProps) {
         setLoading(false);
         setIsAuthenticated(true);
       } catch (err) {
-        // eslint-disable-next-line no-console
         console.error(err);
         logout();
         setLoading(false);

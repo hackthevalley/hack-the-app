@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Flex,
   Container,
@@ -58,15 +57,23 @@ export default function Hackerinfo({
     ["#dae1eb", "#dae1eb", "#dae1eb"], // Light mode colors for each tab
     ["#646973", "#646973", "#646973"] // Dark mode colors
   );
-  // returns boolean if food is taken; aka mealId is in user's
-  const isFoodTaken = (mealId: MealId): boolean => {
-    for (const item of info.food) {
-      if (item.serving === mealId) {
-        return true;
-      }
-    }
-    return false;
-  };
+  const takenMealIds = useMemo(
+    () =>
+      new Set<MealId>(
+        Array.isArray(info?.food)
+          ? info.food
+              .map((item: { serving?: string }) => item.serving)
+              .filter((mealId: string | undefined): mealId is string =>
+                Boolean(mealId)
+              )
+          : []
+      ),
+    [info?.food]
+  );
+  const isFoodTaken = useCallback(
+    (mealId: MealId): boolean => takenMealIds.has(mealId),
+    [takenMealIds]
+  );
   const textColor = useColorModeValue("black", "white"); // For light mode, text is black; for dark mode, text is white
   const bgColor = useColorModeValue("#dae1eb", "#646973");
   const currentFood = food.allFood.find((f) => f.serving);
@@ -89,7 +96,7 @@ export default function Hackerinfo({
           currentFood.name
       );
     }
-  }, [info]);
+  }, [autoCheck, currentFood, isFoodTaken]);
 
   const handleSwitchChange = (mealId: MealId) => {
     // This method adds food items to displayMeal array when switch is turned on (aka when user eats a meal, this meal is added to displayMeal)
