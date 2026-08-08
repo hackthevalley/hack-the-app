@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import axios from "axios";
 import { toast } from "react-hot-toast";
 import QrScanner from "qr-scanner";
 import { Button, Text, Flex, Switch } from "@chakra-ui/react";
@@ -10,6 +9,7 @@ import HackerInfo from "../components/HackerInfo";
 import type { FoodData, HackerApplication } from "../types/volunteer";
 import { checkInApplication, getFoodSchedule } from "../api/volunteerApi";
 import { formatMeal, getCurrentMeal } from "../utils/meals";
+import { getApiErrorMessage } from "../utils/apiErrors";
 
 const usePage = (initialValue = 0) => {
   const [page, setPage] = useState(initialValue);
@@ -52,12 +52,7 @@ export default function Scanner() {
         setWalkinCount(data.walkinCount);
         toast.success(data.message, { id: toastId });
       } catch (error: unknown) {
-        const fallbackMessage = axios.isAxiosError<{
-          fallbackMessage?: string;
-        }>(error)
-          ? error.response?.data?.fallbackMessage
-          : undefined;
-        toast.error(fallbackMessage || "Unable to admit hacker", {
+        toast.error(getApiErrorMessage(error, "Unable to admit hacker"), {
           id: toastId,
         });
       }

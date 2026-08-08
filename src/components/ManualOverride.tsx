@@ -7,8 +7,8 @@ import {
 } from "@chakra-ui/react";
 import { SetStateAction, useState } from "react";
 import { toast } from "react-hot-toast";
-import axios from "axios";
 import { createWalkIn } from "../api/volunteerApi";
+import { getApiErrorMessage } from "../utils/apiErrors";
 
 interface OverrideProps {
   changePage: (pageNumber: number) => void;
@@ -35,15 +35,7 @@ export default function ManualOverride({ changePage }: OverrideProps) {
           response.message || "Email successfully marked as walk-in"
         );
       } catch (error: unknown) {
-        const detail = axios.isAxiosError<{
-          detail?: string | { fallbackMessage?: string };
-        }>(error)
-          ? error.response?.data?.detail
-          : undefined;
-        toast.error(
-          (typeof detail === "object" ? detail.fallbackMessage : detail) ||
-            "An unknown error occurred"
-        );
+        toast.error(getApiErrorMessage(error, "An unknown error occurred"));
       }
     } else {
       setIsError(true);

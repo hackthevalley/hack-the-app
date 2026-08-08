@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Box, Button, Center, Container, Flex, Heading } from "@chakra-ui/react";
-import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useTheme } from "next-themes";
 import { trackMeals } from "../api/volunteerApi";
@@ -8,6 +7,7 @@ import type { FoodData, HackerApplication } from "../types/volunteer";
 import HackerDetailsCard from "./HackerDetailsCard";
 import MealScheduleCard from "./MealScheduleCard";
 import { getCurrentMeal, getTakenMealIds } from "../utils/meals";
+import { getApiErrorMessage } from "../utils/apiErrors";
 
 interface HackerInfoProps {
   info: HackerApplication;
@@ -54,8 +54,9 @@ export default function HackerInfo({ info, changePage, food, autoCheck }: Hacker
       toast.success(selectedMealIds.length ? "Updated!" : "No changes made", { id: toastId });
       changePage(0);
     } catch (error: unknown) {
-      const message = axios.isAxiosError(error) ? error.message : "Unable to update meals";
-      toast.error(message, { id: toastId });
+      toast.error(getApiErrorMessage(error, "Unable to update meals"), {
+        id: toastId,
+      });
     }
   };
 

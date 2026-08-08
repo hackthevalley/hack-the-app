@@ -1,9 +1,9 @@
 import { Form, Formik, Field, type FieldProps } from "formik";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { CgMail, CgLock } from "react-icons/cg";
 import { useNavigate } from "react-router-dom";
 import { createSession } from "../api/authApi";
+import { getApiErrorMessage } from "../utils/apiErrors";
 
 import {
   Field as ChakraField,
@@ -45,17 +45,13 @@ export default function LoginForm({ next }: LoginFormProps) {
             toast.success("Signed in");
             navigate(next);
           } catch (error: unknown) {
-            toast.error(
-              error instanceof Error ? error.message : "Unable to sign in"
-            );
+            toast.error(getApiErrorMessage(error, "Unable to sign in"));
           }
         } catch (error: unknown) {
           toast.dismiss(loadingToast);
-          if (axios.isAxiosError<{ detail?: string }>(error) && error.response?.data?.detail) {
-            toast.error(error.response.data.detail);
-          } else {
-            toast.error("Unexpected error. Try again later.");
-          }
+          toast.error(
+            getApiErrorMessage(error, "Unexpected error. Try again later."),
+          );
         }
       }}
     >
