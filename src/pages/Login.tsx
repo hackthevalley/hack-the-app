@@ -8,7 +8,6 @@ import Login from "../components/Login";
 export default function LoginPage() {
   const { isAuthenticated } = useUser();
 
-  // If user is already authenticated, redirect to dashboard
   if (isAuthenticated) {
     return <Navigate to="/" />;
   }

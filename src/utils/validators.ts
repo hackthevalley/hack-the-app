@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-const validateRequiredEmail = (value: any) => {
-  let error;
+const validateRequiredEmail = (value: string): string | undefined => {
+  let error: string | undefined;
   if (!value) {
     error = "Email address is required";
   } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
@@ -9,8 +8,8 @@ const validateRequiredEmail = (value: any) => {
   return error;
 };
 
-const validateRequiredPassword = (value: any) => {
-  let error;
+const validateRequiredPassword = (value: string): string | undefined => {
+  let error: string | undefined;
   if (!value) {
     error = "Password is required";
   }

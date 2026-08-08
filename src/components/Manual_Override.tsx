@@ -8,6 +8,7 @@ import {
 import axiosInstance from "../axiosInstance";
 import { SetStateAction, useState } from "react";
 import { toast } from "react-hot-toast";
+import axios from "axios";
 
 interface OverrideProps {
   changePage: (pageNumber: number) => void;
@@ -35,11 +36,14 @@ export default function OverridePage({ changePage }: OverrideProps) {
         toast.success(
           response.data.message || "Email successfully marked as walk-in"
         );
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (e: any) {
+      } catch (error: unknown) {
+        const detail = axios.isAxiosError<{
+          detail?: string | { fallbackMessage?: string };
+        }>(error)
+          ? error.response?.data?.detail
+          : undefined;
         toast.error(
-          e.response?.data?.detail?.fallbackMessage ||
-            e.response?.data?.detail ||
+          (typeof detail === "object" ? detail.fallbackMessage : detail) ||
             "An unknown error occurred"
         );
       }

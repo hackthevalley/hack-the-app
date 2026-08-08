@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-refresh/only-export-components */
 import * as jose from "jose";
 import {
@@ -11,11 +10,11 @@ import {
 import axiosInstance from "../axiosInstance";
 
 interface IUserContext {
-  login: (token: string) => Promise<any>;
+  login: (token: string) => Promise<unknown>;
   logout: () => void;
   loading: boolean;
   isAuthenticated: boolean;
-  user: any;
+  user: unknown;
 }
 
 interface IAuthProviderProps {
@@ -31,21 +30,22 @@ export function useUser() {
 export function AuthProvider({ children }: IAuthProviderProps) {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(false);
+  const [user, setUser] = useState<unknown>(null);
 
   const logout = useCallback(() => {
     localStorage.removeItem("auth-token");
     setIsAuthenticated(false);
-    setUser(false);
+    setUser(null);
   }, []);
 
   const login = useCallback(async (token: string) => {
     try {
       localStorage.setItem("auth-token", token);
-      const payload: any = jose.decodeJwt(token);
+      const payload = jose.decodeJwt(token);
+      const scopes = Array.isArray(payload.scopes) ? payload.scopes : [];
       if (
-        !payload.scopes?.includes("admin") &&
-        !payload.scopes?.includes("volunteer")
+        !scopes.includes("admin") &&
+        !scopes.includes("volunteer")
       )
         throw new Error("You do not have access");
       const response = await axiosInstance.get("/account/me");
@@ -67,10 +67,11 @@ export function AuthProvider({ children }: IAuthProviderProps) {
       }
       try {
         const response = await axiosInstance.post("/account/tokens");
-        const payload: any = jose.decodeJwt(response.data.access_token);
+        const payload = jose.decodeJwt(response.data.access_token);
+        const scopes = Array.isArray(payload.scopes) ? payload.scopes : [];
         if (
-          !payload.scopes?.includes("admin") &&
-          !payload.scopes?.includes("volunteer")
+          !scopes.includes("admin") &&
+          !scopes.includes("volunteer")
         )
           throw new Error("You do not have access");
         localStorage.setItem("auth-token", response.data.access_token);

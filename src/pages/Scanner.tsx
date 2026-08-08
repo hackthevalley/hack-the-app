@@ -1,6 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import axios from "axios";
 import { toast } from "react-hot-toast";
 import QrScanner from "qr-scanner";
 import axiosInstance from "../axiosInstance";
@@ -9,10 +8,15 @@ import { useUser } from "../components/Authentication";
 import { Navigate } from "react-router-dom";
 import OverridePage from "../components/Manual_Override";
 import HackerInfo from "../components/Hackerinfo";
+import type {
+  CheckInResponse,
+  FoodData,
+  HackerApplication,
+} from "../types/volunteer";
 
 const usePage = (initialValue = 0) => {
   const [page, setPage] = useState(initialValue);
-  const changePage = (pageNumber: number) => setPage(pageNumber);
+  const changePage = useCallback((pageNumber: number) => setPage(pageNumber), []);
 
   return { page, changePage };
 };
@@ -20,21 +24,21 @@ const usePage = (initialValue = 0) => {
 export default function Scanner() {
   const recentScansRef = useRef(new Set<string>());
   const dedupeTimersRef = useRef(new Set<ReturnType<typeof setTimeout>>());
-  const [info, setInfo] = useState<any>(null);
-  const [foodData, setFoodData] = useState<any>(null);
+  const [info, setInfo] = useState<HackerApplication | null>(null);
+  const [foodData, setFoodData] = useState<FoodData | null>(null);
   const [scanCount, setScanCount] = useState(0);
   const [walkinCount, setWalkinCount] = useState(0);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const currentFood = foodData?.allFood?.find(
-    (f: { serving: boolean }) => f.serving
+    (meal) => meal.serving
   );
   const [autoCheck, setAutoCheck] = useState<boolean>(false);
   const { isAuthenticated } = useUser();
   const { page, changePage } = usePage();
 
-  const handleScan = async (result: any) => {
-    if (result && result.data != "") {
-      const scanData = result.data as string;
+  const handleScan = useCallback(async (result: QrScanner.ScanResult) => {
+    if (result.data !== "") {
+      const scanData = result.data;
       if (recentScansRef.current.has(scanData)) return;
 
       recentScansRef.current.add(scanData);
@@ -45,10 +49,9 @@ export default function Scanner() {
       }, DEDUP_TIMEOUT_MS);
       dedupeTimersRef.current.add(timer);
 
-      // admit
       const toastId = toast.loading("Admitting...");
       try {
-        const response = await axiosInstance.post("/volunteer/check-ins", {
+        const response = await axiosInstance.post<CheckInResponse>("/volunteer/check-ins", {
           id: result.data,
         });
 
@@ -57,16 +60,23 @@ export default function Scanner() {
         setScanCount(data.scannedCount);
         setWalkinCount(data.walkinCount);
         toast.success(data.message, { id: toastId });
-      } catch (error: any) {
-        toast.error(error?.response?.data?.fallbackMessage, { id: toastId });
+      } catch (error: unknown) {
+        const fallbackMessage = axios.isAxiosError<{
+          fallbackMessage?: string;
+        }>(error)
+          ? error.response?.data?.fallbackMessage
+          : undefined;
+        toast.error(fallbackMessage || "Unable to admit hacker", {
+          id: toastId,
+        });
       }
     }
-  };
+  }, []);
 
   useEffect(() => {
     axiosInstance
       .get("/volunteer/food")
-      .then((foodResponse) => {
+      .then((foodResponse: { data: FoodData }) => {
         setFoodData(foodResponse.data);
       })
       .catch(() => {
@@ -79,9 +89,7 @@ export default function Scanner() {
         videoRef.current,
         (result) => handleScan(result),
         {
-          onDecodeError: () => {
-            // console.error(error);
-          },
+          onDecodeError: () => undefined,
           highlightScanRegion: true,
           highlightCodeOutline: false,
         }
@@ -95,7 +103,7 @@ export default function Scanner() {
         qrScanner.destroy();
       }
     };
-  }, [page]);
+  }, [handleScan, page]);
 
   useEffect(
     () => () => {
@@ -112,7 +120,7 @@ export default function Scanner() {
     } else {
       changePage(0);
     }
-  }, [info]);
+  }, [changePage, info]);
 
   if (!isAuthenticated && !import.meta.env.DEV) {
     return <Navigate to="/login" />;
@@ -122,7 +130,7 @@ export default function Scanner() {
     return <OverridePage changePage={changePage} />;
   }
 
-  if (page == 2) {
+  if (page === 2 && info && foodData) {
     return (
       <HackerInfo
         autoCheck={autoCheck}
@@ -139,7 +147,6 @@ export default function Scanner() {
         height: "100svh",
         flexDirection: "column",
         alignItems: "center",
-        // marginTop: "16px",
         marginRight: "16px",
         marginLeft: "16px",
         justifyContent: "space-between",
@@ -153,8 +160,7 @@ export default function Scanner() {
           <video
             ref={videoRef}
             style={{
-              width: "50wh",
-              // maxWidth: "500px",
+              width: "50vw",
               border: "1px solid black",
             }}
           />

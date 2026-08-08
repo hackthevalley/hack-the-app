@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Form, Formik, Field } from "formik";
+import { Form, Formik, Field, type FieldProps } from "formik";
+import axios from "axios";
 import toast from "react-hot-toast";
 import { CgMail, CgLock } from "react-icons/cg";
 import { useNavigate } from "react-router-dom";
@@ -22,9 +22,9 @@ interface LoginProps {
   next: string;
 }
 
-interface FieldProps {
-  field: any;
-  form: any;
+interface LoginValues {
+  email: string;
+  password: string;
 }
 
 export default function Login({ next }: LoginProps) {
@@ -32,9 +32,9 @@ export default function Login({ next }: LoginProps) {
   const { login } = useUser();
 
   return (
-    <Formik
+    <Formik<LoginValues>
       initialValues={{ email: "", password: "" }}
-      onSubmit={async (values: any) => {
+      onSubmit={async (values) => {
         const loadingToast = toast.loading("Signing in...");
         try {
           // Send as form-urlencoded data as backend expects OAuth2PasswordRequestForm
@@ -56,13 +56,15 @@ export default function Login({ next }: LoginProps) {
             await login(response.data.access_token);
             toast.success("Signed in");
             navigate(next);
-          } catch (err: any) {
-            toast.error(err.message);
+          } catch (error: unknown) {
+            toast.error(
+              error instanceof Error ? error.message : "Unable to sign in"
+            );
           }
-        } catch (err: any) {
+        } catch (error: unknown) {
           toast.dismiss(loadingToast);
-          if (err.response?.data?.detail) {
-            toast.error(err.response.data.detail);
+          if (axios.isAxiosError<{ detail?: string }>(error) && error.response?.data?.detail) {
+            toast.error(error.response.data.detail);
           } else {
             toast.error("Unexpected error. Try again later.");
           }
@@ -72,7 +74,7 @@ export default function Login({ next }: LoginProps) {
       {({ isSubmitting }) => (
         <Form>
           <Field name="email" validate={validateRequiredEmail}>
-            {({ field, form }: FieldProps) => (
+            {({ field, form }: FieldProps<string, LoginValues>) => (
               <ChakraField.Root
                 invalid={Boolean(form.errors.email && form.touched.email)}
               >
@@ -83,13 +85,13 @@ export default function Login({ next }: LoginProps) {
                   <Input {...field} id="email" type="email" autoFocus required />
                 </InputGroup>
                 <ChakraField.ErrorText>
-                  {form.errors.email}
+                  {typeof form.errors.email === "string" ? form.errors.email : undefined}
                 </ChakraField.ErrorText>
               </ChakraField.Root>
             )}
           </Field>
           <Field name="password" validate={validateRequiredPassword}>
-            {({ field, form }: FieldProps) => (
+            {({ field, form }: FieldProps<string, LoginValues>) => (
               <ChakraField.Root
                 mt={4}
                 invalid={Boolean(
@@ -108,7 +110,7 @@ export default function Login({ next }: LoginProps) {
                   />
                 </InputGroup>
                 <ChakraField.ErrorText>
-                  {form.errors.password}
+                  {typeof form.errors.password === "string" ? form.errors.password : undefined}
                 </ChakraField.ErrorText>
               </ChakraField.Root>
             )}
