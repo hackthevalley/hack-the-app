@@ -6,8 +6,8 @@ import axiosInstance from "../axiosInstance";
 import { Button, Text, Flex, Switch } from "@chakra-ui/react";
 import { useUser } from "../components/Authentication";
 import { Navigate } from "react-router-dom";
-import OverridePage from "../components/Manual_Override";
-import HackerInfo from "../components/Hackerinfo";
+import ManualOverride from "../components/ManualOverride";
+import HackerInfo from "../components/HackerInfo";
 import type {
   CheckInResponse,
   FoodData,
@@ -127,7 +127,7 @@ export default function Scanner() {
   }
 
   if (page == 1) {
-    return <OverridePage changePage={changePage} />;
+    return <ManualOverride changePage={changePage} />;
   }
 
   if (page === 2 && info && foodData) {

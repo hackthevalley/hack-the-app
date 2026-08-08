@@ -6,7 +6,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 
 import { AuthProvider } from "./components/Authentication";
 import Scanner from "./pages/Scanner";
-import Login from "./pages/Login";
+import LoginPage from "./pages/LoginPage";
 import { appSystem } from "./theme";
 
 function App() {
@@ -17,7 +17,7 @@ function App() {
           <Router>
             <Routes>
               <Route path="/" element={<Scanner />} />
-              <Route path="/login" element={<Login />} />
+              <Route path="/login" element={<LoginPage />} />
             </Routes>
           </Router>
         </AuthProvider>

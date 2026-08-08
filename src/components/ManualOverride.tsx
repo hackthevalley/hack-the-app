@@ -14,7 +14,7 @@ interface OverrideProps {
   changePage: (pageNumber: number) => void;
 }
 
-export default function OverridePage({ changePage }: OverrideProps) {
+export default function ManualOverride({ changePage }: OverrideProps) {
   const [input, setInput] = useState("");
   const [isError, setIsError] = useState(false);
   const handleInputChange = (e: {

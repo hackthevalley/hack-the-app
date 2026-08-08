@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { Flex, Container, Box, Heading } from "@chakra-ui/react";
 
 import { useUser } from "../components/Authentication";
-import Login from "../components/Login";
+import LoginForm from "../components/LoginForm";
 
 export default function LoginPage() {
   const { isAuthenticated } = useUser();
@@ -19,7 +19,7 @@ export default function LoginPage() {
           <Heading as="h1" size="md" cursor="default" mb={4}>
             Sign in to view admin dashboard
           </Heading>
-          <Login next="/" />
+          <LoginForm next="/" />
         </Box>
       </Container>
     </Flex>

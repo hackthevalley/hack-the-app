@@ -18,7 +18,7 @@ import {
 } from "../utils/validators";
 import { useUser } from "./Authentication";
 
-interface LoginProps {
+interface LoginFormProps {
   next: string;
 }
 
@@ -27,7 +27,7 @@ interface LoginValues {
   password: string;
 }
 
-export default function Login({ next }: LoginProps) {
+export default function LoginForm({ next }: LoginFormProps) {
   const navigate = useNavigate();
   const { login } = useUser();
 

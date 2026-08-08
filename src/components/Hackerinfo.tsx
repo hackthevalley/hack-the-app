@@ -15,7 +15,7 @@ interface HackerInfoProps {
   autoCheck: boolean;
 }
 
-export default function Hackerinfo({ info, changePage, food, autoCheck }: HackerInfoProps) {
+export default function HackerInfo({ info, changePage, food, autoCheck }: HackerInfoProps) {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
   const textColor = isDark ? "white" : "black";
@@ -107,3 +107,4 @@ export default function Hackerinfo({ info, changePage, food, autoCheck }: Hacker
     </Flex>
   );
 }
+
