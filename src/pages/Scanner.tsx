@@ -2,17 +2,14 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import QrScanner from "qr-scanner";
-import axiosInstance from "../axiosInstance";
 import { Button, Text, Flex, Switch } from "@chakra-ui/react";
 import { useUser } from "../components/Authentication";
 import { Navigate } from "react-router-dom";
 import ManualOverride from "../components/ManualOverride";
 import HackerInfo from "../components/HackerInfo";
-import type {
-  CheckInResponse,
-  FoodData,
-  HackerApplication,
-} from "../types/volunteer";
+import type { FoodData, HackerApplication } from "../types/volunteer";
+import { checkInApplication, getFoodSchedule } from "../api/volunteerApi";
+import { formatMeal, getCurrentMeal } from "../utils/meals";
 
 const usePage = (initialValue = 0) => {
   const [page, setPage] = useState(initialValue);
@@ -29,9 +26,7 @@ export default function Scanner() {
   const [scanCount, setScanCount] = useState(0);
   const [walkinCount, setWalkinCount] = useState(0);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const currentFood = foodData?.allFood?.find(
-    (meal) => meal.serving
-  );
+  const currentFood = getCurrentMeal(foodData);
   const [autoCheck, setAutoCheck] = useState<boolean>(false);
   const { isAuthenticated } = useUser();
   const { page, changePage } = usePage();
@@ -51,11 +46,7 @@ export default function Scanner() {
 
       const toastId = toast.loading("Admitting...");
       try {
-        const response = await axiosInstance.post<CheckInResponse>("/volunteer/check-ins", {
-          id: result.data,
-        });
-
-        const data = response.data;
+        const data = await checkInApplication(result.data);
         setInfo(data.body);
         setScanCount(data.scannedCount);
         setWalkinCount(data.walkinCount);
@@ -74,10 +65,9 @@ export default function Scanner() {
   }, []);
 
   useEffect(() => {
-    axiosInstance
-      .get("/volunteer/food")
-      .then((foodResponse: { data: FoodData }) => {
-        setFoodData(foodResponse.data);
+    getFoodSchedule()
+      .then((schedule) => {
+        setFoodData(schedule);
       })
       .catch(() => {
         toast.error("Failed to retrieve food data");
@@ -169,9 +159,7 @@ export default function Scanner() {
           <Text> Checking Food? Currently Serving:</Text>
           <Flex>
             <span style={{ color: "lime", fontWeight: "bold" }}>
-              {currentFood
-                ? `Day ${currentFood?.day} ${currentFood?.name}`
-                : "Nothing"}
+              {formatMeal(currentFood)}
             </span>
             <Switch.Root
               size="lg"

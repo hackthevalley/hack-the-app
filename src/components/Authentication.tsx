@@ -1,5 +1,4 @@
 /* eslint-disable react-refresh/only-export-components */
-import * as jose from "jose";
 import {
   useContext,
   useEffect,
@@ -7,7 +6,8 @@ import {
   useState,
   createContext,
 } from "react";
-import axiosInstance from "../axiosInstance";
+import { getCurrentUser, refreshSession } from "../api/authApi";
+import { assertStaffToken } from "../utils/authorization";
 
 interface IUserContext {
   login: (token: string) => Promise<unknown>;
@@ -41,17 +41,11 @@ export function AuthProvider({ children }: IAuthProviderProps) {
   const login = useCallback(async (token: string) => {
     try {
       localStorage.setItem("auth-token", token);
-      const payload = jose.decodeJwt(token);
-      const scopes = Array.isArray(payload.scopes) ? payload.scopes : [];
-      if (
-        !scopes.includes("admin") &&
-        !scopes.includes("volunteer")
-      )
-        throw new Error("You do not have access");
-      const response = await axiosInstance.get("/account/me");
+      assertStaffToken(token);
+      const user = await getCurrentUser();
       setIsAuthenticated(true);
-      setUser(response.data);
-      return response.data;
+      setUser(user);
+      return user;
     } catch (err) {
       localStorage.removeItem("auth-token");
       throw err;
@@ -66,17 +60,11 @@ export function AuthProvider({ children }: IAuthProviderProps) {
         return;
       }
       try {
-        const response = await axiosInstance.post("/account/tokens");
-        const payload = jose.decodeJwt(response.data.access_token);
-        const scopes = Array.isArray(payload.scopes) ? payload.scopes : [];
-        if (
-          !scopes.includes("admin") &&
-          !scopes.includes("volunteer")
-        )
-          throw new Error("You do not have access");
-        localStorage.setItem("auth-token", response.data.access_token);
-        const currentUser = await axiosInstance.get("/account/me");
-        setUser(currentUser.data);
+        const tokenResponse = await refreshSession();
+        assertStaffToken(tokenResponse.access_token);
+        localStorage.setItem("auth-token", tokenResponse.access_token);
+        const currentUser = await getCurrentUser();
+        setUser(currentUser);
         setLoading(false);
         setIsAuthenticated(true);
       } catch (err) {

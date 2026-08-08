@@ -3,10 +3,11 @@ import { Box, Button, Center, Container, Flex, Heading } from "@chakra-ui/react"
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useTheme } from "next-themes";
-import axiosInstance from "../axiosInstance";
+import { trackMeals } from "../api/volunteerApi";
 import type { FoodData, HackerApplication } from "../types/volunteer";
 import HackerDetailsCard from "./HackerDetailsCard";
 import MealScheduleCard from "./MealScheduleCard";
+import { getCurrentMeal, getTakenMealIds } from "../utils/meals";
 
 interface HackerInfoProps {
   info: HackerApplication;
@@ -20,11 +21,11 @@ export default function HackerInfo({ info, changePage, food, autoCheck }: Hacker
   const isDark = resolvedTheme === "dark";
   const textColor = isDark ? "white" : "black";
   const background = isDark ? "#646973" : "#dae1eb";
-  const currentMeal = food.allFood.find((meal) => meal.serving);
+  const currentMeal = getCurrentMeal(food);
   const [tabIndex, setTabIndex] = useState(currentMeal ? currentMeal.day - 1 : 0);
   const takenMealIds = useMemo(
-    () => new Set(info.food.flatMap((item) => item.serving ? [item.serving] : [])),
-    [info.food]
+    () => getTakenMealIds(info),
+    [info]
   );
   const [selectedMealIds, setSelectedMealIds] = useState<string[]>(
     currentMeal && autoCheck && !takenMealIds.has(currentMeal.id) ? [currentMeal.id] : []
@@ -46,15 +47,11 @@ export default function HackerInfo({ info, changePage, food, autoCheck }: Hacker
   }, []);
 
   const saveHackerInfo = async () => {
-    const tracking = selectedMealIds.map((mealId) => ({
-      application: info.id,
-      serving: mealId,
-    }));
     const toastId = toast.loading("Submitting...");
 
     try {
-      await axiosInstance.post("/volunteer/food/tracking", { food: tracking });
-      toast.success(tracking.length ? "Updated!" : "No changes made", { id: toastId });
+      await trackMeals(info.id, selectedMealIds);
+      toast.success(selectedMealIds.length ? "Updated!" : "No changes made", { id: toastId });
       changePage(0);
     } catch (error: unknown) {
       const message = axios.isAxiosError(error) ? error.message : "Unable to update meals";
@@ -107,4 +104,3 @@ export default function HackerInfo({ info, changePage, food, autoCheck }: Hacker
     </Flex>
   );
 }
-

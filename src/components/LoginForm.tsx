@@ -3,7 +3,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { CgMail, CgLock } from "react-icons/cg";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../axiosInstance";
+import { createSession } from "../api/authApi";
 
 import {
   Field as ChakraField,
@@ -38,22 +38,10 @@ export default function LoginForm({ next }: LoginFormProps) {
         const loadingToast = toast.loading("Signing in...");
         try {
           // Send as form-urlencoded data as backend expects OAuth2PasswordRequestForm
-          const formData = new URLSearchParams();
-          formData.append("username", values.email);
-          formData.append("password", values.password);
-
-          const response = await axiosInstance.post(
-            "/account/sessions",
-            formData.toString(),
-            {
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-              },
-            }
-          );
+          const session = await createSession(values.email, values.password);
           toast.dismiss(loadingToast);
           try {
-            await login(response.data.access_token);
+            await login(session.access_token);
             toast.success("Signed in");
             navigate(next);
           } catch (error: unknown) {

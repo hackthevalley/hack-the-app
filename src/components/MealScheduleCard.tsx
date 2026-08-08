@@ -1,17 +1,6 @@
 import { Box, Card, Center, Flex, SimpleGrid, Spacer, Switch, Tabs, Text } from "@chakra-ui/react";
 import type { Meal } from "../types/volunteer";
-
-const MEAL_ORDER: Record<string, number> = { Breakfast: 1, Lunch: 2, Dinner: 3 };
-
-function groupMealsByDay(meals: Meal[]): Record<number, Meal[]> {
-  return meals.reduce<Record<number, Meal[]>>((days, meal) => {
-    (days[meal.day] ??= []).push(meal);
-    days[meal.day].sort(
-      (left, right) => (MEAL_ORDER[left.name] ?? 99) - (MEAL_ORDER[right.name] ?? 99)
-    );
-    return days;
-  }, {});
-}
+import { formatMeal, groupMealsByDay } from "../utils/meals";
 
 export default function MealScheduleCard({
   meals,
@@ -45,7 +34,7 @@ export default function MealScheduleCard({
           <Text fontSize="4xl" as="b">Meal Schedule</Text>
           <br />
           <Text as="i" fontSize={18}>
-            Now Serving: {currentMeal ? `Day ${currentMeal.day} ${currentMeal.name}` : "Nothing"}
+            Now Serving: {formatMeal(currentMeal)}
           </Text>
         </Box>
 

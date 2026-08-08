@@ -5,10 +5,10 @@ import {
   Field,
   Input,
 } from "@chakra-ui/react";
-import axiosInstance from "../axiosInstance";
 import { SetStateAction, useState } from "react";
 import { toast } from "react-hot-toast";
 import axios from "axios";
+import { createWalkIn } from "../api/volunteerApi";
 
 interface OverrideProps {
   changePage: (pageNumber: number) => void;
@@ -29,12 +29,10 @@ export default function ManualOverride({ changePage }: OverrideProps) {
   const handleManualOverride = async () => {
     if (input != "") {
       try {
-        const response = await axiosInstance.post("/volunteer/forms/walk-ins", {
-          email: input,
-        });
+        const response = await createWalkIn(input);
         setInput("");
         toast.success(
-          response.data.message || "Email successfully marked as walk-in"
+          response.message || "Email successfully marked as walk-in"
         );
       } catch (error: unknown) {
         const detail = axios.isAxiosError<{
