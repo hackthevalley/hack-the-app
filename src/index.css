@@ -5,3 +5,6 @@ body,
   max-height: 100vh;
   overflow: hidden;
 }
+.scanner-video {
+  border: 1px solid var(--chakra-colors-border);
+}

@@ -7,14 +7,18 @@ import {
   createContext,
 } from "react";
 import { getCurrentUser, refreshSession } from "../api/authApi";
+import type { AccountUser } from "../api/authApi";
 import { assertStaffToken } from "../utils/authorization";
+import { Center, Spinner, Text, VStack } from "@chakra-ui/react";
+import { Navigate, useLocation } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 interface IUserContext {
-  login: (token: string) => Promise<unknown>;
+  login: (token: string) => Promise<AccountUser>;
   logout: () => void;
   loading: boolean;
   isAuthenticated: boolean;
-  user: unknown;
+  user: AccountUser | null;
 }
 
 interface IAuthProviderProps {
@@ -30,7 +34,7 @@ export function useUser() {
 export function AuthProvider({ children }: IAuthProviderProps) {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<unknown>(null);
+  const [user, setUser] = useState<AccountUser | null>(null);
 
   const logout = useCallback(() => {
     localStorage.removeItem("auth-token");
@@ -53,6 +57,15 @@ export function AuthProvider({ children }: IAuthProviderProps) {
   }, []);
 
   useEffect(() => {
+    const handleUnauthorized = () => {
+      toast.error("Your session expired. Please sign in again.");
+      logout();
+    };
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+    return () => window.removeEventListener("auth:unauthorized", handleUnauthorized);
+  }, [logout]);
+
+  useEffect(() => {
     const handler = async () => {
       const token = localStorage.getItem("auth-token");
       if (!token) {
@@ -67,8 +80,8 @@ export function AuthProvider({ children }: IAuthProviderProps) {
         setUser(currentUser);
         setLoading(false);
         setIsAuthenticated(true);
-      } catch (err) {
-        console.error(err);
+      } catch {
+        toast.error("Your session expired. Please sign in again.");
         logout();
         setLoading(false);
       }
@@ -87,7 +100,25 @@ export function AuthProvider({ children }: IAuthProviderProps) {
     <UserContext.Provider
       value={{ login, logout, loading, isAuthenticated, user }}
     >
-      {loading ? "Loading..." : children}
+      {loading ? (
+        <Center minH="100svh">
+          <VStack gap={3}>
+            <Spinner size="lg" colorPalette="blue" />
+            <Text color="fg.muted">Restoring your session…</Text>
+          </VStack>
+        </Center>
+      ) : children}
     </UserContext.Provider>
   );
+}
+
+export function RequireAuth({ children }: IAuthProviderProps) {
+  const { isAuthenticated } = useUser();
+  const location = useLocation();
+
+  if (import.meta.env.DEV) return children;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  }
+  return children;
 }

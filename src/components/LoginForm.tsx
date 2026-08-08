@@ -37,21 +37,14 @@ export default function LoginForm({ next }: LoginFormProps) {
       onSubmit={async (values) => {
         const loadingToast = toast.loading("Signing in...");
         try {
-          // Send as form-urlencoded data as backend expects OAuth2PasswordRequestForm
           const session = await createSession(values.email, values.password);
-          toast.dismiss(loadingToast);
-          try {
-            await login(session.access_token);
-            toast.success("Signed in");
-            navigate(next);
-          } catch (error: unknown) {
-            toast.error(getApiErrorMessage(error, "Unable to sign in"));
-          }
+          await login(session.access_token);
+          toast.success("Signed in");
+          navigate(next);
         } catch (error: unknown) {
+          toast.error(getApiErrorMessage(error, "Unable to sign in"));
+        } finally {
           toast.dismiss(loadingToast);
-          toast.error(
-            getApiErrorMessage(error, "Unexpected error. Try again later."),
-          );
         }
       }}
     >

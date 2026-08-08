@@ -1,6 +1,19 @@
 import { Box, Card, Center, Flex, SimpleGrid, Spacer, Switch, Tabs, Text } from "@chakra-ui/react";
 import type { Meal } from "../types/volunteer";
-import { formatMeal, groupMealsByDay } from "../utils/meals";
+import { formatMeal, groupMealsByDay, MEAL_DAYS } from "../utils/meals";
+
+interface MealScheduleCardProps {
+  meals: Meal[];
+  currentMeal?: Meal;
+  selectedMealIds: string[];
+  takenMealIds: ReadonlySet<string>;
+  tabIndex: number;
+  spacing: number;
+  background: string;
+  textColor: string;
+  onTabChange: (index: number) => void;
+  onMealToggle: (mealId: string) => void;
+}
 
 export default function MealScheduleCard({
   meals,
@@ -13,18 +26,7 @@ export default function MealScheduleCard({
   textColor,
   onTabChange,
   onMealToggle,
-}: {
-  meals: Meal[];
-  currentMeal?: Meal;
-  selectedMealIds: string[];
-  takenMealIds: ReadonlySet<string>;
-  tabIndex: number;
-  spacing: number;
-  background: string;
-  textColor: string;
-  onTabChange: (index: number) => void;
-  onMealToggle: (mealId: string) => void;
-}) {
+}: MealScheduleCardProps) {
   const mealsByDay = groupMealsByDay(meals);
 
   return (
@@ -49,14 +51,14 @@ export default function MealScheduleCard({
           mb={spacing}
         >
           <Tabs.List>
-            {[1, 2, 3].map((day) => (
+            {MEAL_DAYS.map((day) => (
               <Tabs.Trigger key={day} value={`day-${day}`} _focus={{ boxShadow: "none" }} borderWidth="3px" color={textColor}>
                 Day {day}
               </Tabs.Trigger>
             ))}
           </Tabs.List>
 
-          {[1, 2, 3].map((day) => (
+          {MEAL_DAYS.map((day) => (
             <Tabs.Content key={day} value={`day-${day}`} display="flex" flexDirection="column" alignItems="center" justifyContent="center" h="240px">
               <Center>
                 <SimpleGrid columns={1} w="100%">

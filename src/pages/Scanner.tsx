@@ -2,8 +2,6 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import QrScanner from "qr-scanner";
 import { Button, Text, Flex, Switch } from "@chakra-ui/react";
-import { useUser } from "../components/Authentication";
-import { Navigate } from "react-router-dom";
 import ManualOverride from "../components/ManualOverride";
 import HackerInfo from "../components/HackerInfo";
 import type { FoodData, HackerApplication } from "../types/volunteer";
@@ -28,7 +26,6 @@ export default function Scanner() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const currentFood = getCurrentMeal(foodData);
   const [autoCheck, setAutoCheck] = useState<boolean>(false);
-  const { isAuthenticated } = useUser();
   const { page, changePage } = usePage();
 
   const handleScan = useCallback(async (result: QrScanner.ScanResult) => {
@@ -68,9 +65,11 @@ export default function Scanner() {
         toast.error("Failed to retrieve food data");
         setFoodData(null);
       });
-    let qrScanner: QrScanner | null = null;
-    if (videoRef.current) {
-      qrScanner = new QrScanner(
+  }, []);
+
+  useEffect(() => {
+    if (page !== 0 || !videoRef.current) return;
+    const qrScanner = new QrScanner(
         videoRef.current,
         (result) => handleScan(result),
         {
@@ -79,14 +78,11 @@ export default function Scanner() {
           highlightCodeOutline: false,
         }
       );
-      qrScanner.start();
-    }
+    void qrScanner.start();
 
     return () => {
-      if (qrScanner) {
-        qrScanner.stop();
-        qrScanner.destroy();
-      }
+      qrScanner.stop();
+      qrScanner.destroy();
     };
   }, [handleScan, page]);
 
@@ -107,11 +103,7 @@ export default function Scanner() {
     }
   }, [changePage, info]);
 
-  if (!isAuthenticated && !import.meta.env.DEV) {
-    return <Navigate to="/login" />;
-  }
-
-  if (page == 1) {
+  if (page === 1) {
     return <ManualOverride changePage={changePage} />;
   }
 
@@ -144,18 +136,16 @@ export default function Scanner() {
           <Text textAlign="center">{walkinCount} hackers have walked in!</Text>
           <video
             ref={videoRef}
-            style={{
-              width: "50vw",
-              border: "1px solid black",
-            }}
+            style={{ width: "50vw" }}
+            className="scanner-video"
           />
         </Flex>
         <Flex justifyContent="center" alignItems="center" direction="column">
           <Text> Checking Food? Currently Serving:</Text>
           <Flex>
-            <span style={{ color: "lime", fontWeight: "bold" }}>
+            <Text as="span" color="green.400" fontWeight="bold">
               {formatMeal(currentFood)}
-            </span>
+            </Text>
             <Switch.Root
               size="lg"
               disabled={!currentFood}

@@ -17,7 +17,7 @@ export default function LoginPage() {
       <Container py={10}>
         <Box padding={7} width="100%">
           <Heading as="h1" size="md" cursor="default" mb={4}>
-            Sign in to view admin dashboard
+            Sign in to use the volunteer scanner
           </Heading>
           <LoginForm next="/" />
         </Box>

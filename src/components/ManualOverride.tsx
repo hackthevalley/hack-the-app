@@ -5,10 +5,11 @@ import {
   Field,
   Input,
 } from "@chakra-ui/react";
-import { SetStateAction, useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import { toast } from "react-hot-toast";
 import { createWalkIn } from "../api/volunteerApi";
 import { getApiErrorMessage } from "../utils/apiErrors";
+import { validateRequiredEmail } from "../utils/validators";
 
 interface OverrideProps {
   changePage: (pageNumber: number) => void;
@@ -17,9 +18,7 @@ interface OverrideProps {
 export default function ManualOverride({ changePage }: OverrideProps) {
   const [input, setInput] = useState("");
   const [isError, setIsError] = useState(false);
-  const handleInputChange = (e: {
-    target: { value: SetStateAction<string> };
-  }) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInput(value);
     if (value) {
@@ -27,9 +26,10 @@ export default function ManualOverride({ changePage }: OverrideProps) {
     }
   };
   const handleManualOverride = async () => {
-    if (input != "") {
+    const validationError = validateRequiredEmail(input.trim());
+    if (!validationError) {
       try {
-        const response = await createWalkIn(input);
+        const response = await createWalkIn(input.trim());
         setInput("");
         toast.success(
           response.message || "Email successfully marked as walk-in"
@@ -76,12 +76,12 @@ export default function ManualOverride({ changePage }: OverrideProps) {
             width={"100%"}
           />
           {isError ? (
-            <Field.ErrorText>Email is required.</Field.ErrorText>
+            <Field.ErrorText>Enter a valid email address.</Field.ErrorText>
           ) : (
             <></>
           )}
         </Field.Root>
-        <Button width="100%" onClick={() => handleManualOverride()}>
+        <Button width="100%" onClick={() => void handleManualOverride()}>
           Submit
         </Button>
       </Flex>

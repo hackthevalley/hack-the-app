@@ -7,7 +7,7 @@ import {
   tabsSlotRecipe,
 } from "@chakra-ui/react/theme";
 
-const legacyVisualConfig = defineConfig({
+const appVisualConfig = defineConfig({
   globalCss: {
     "html, body, #root": {
       bg: { _light: "white", _dark: "gray.800" },
@@ -15,36 +15,6 @@ const legacyVisualConfig = defineConfig({
     },
   },
   theme: {
-    tokens: {
-      colors: {
-        gray: {
-          50: { value: "#F7FAFC" },
-          100: { value: "#EDF2F7" },
-          200: { value: "#E2E8F0" },
-          300: { value: "#CBD5E0" },
-          400: { value: "#A0AEC0" },
-          500: { value: "#718096" },
-          600: { value: "#4A5568" },
-          700: { value: "#2D3748" },
-          800: { value: "#1A202C" },
-          900: { value: "#171923" },
-          950: { value: "#0D0E12" },
-        },
-        blue: {
-          50: { value: "#EBF8FF" },
-          100: { value: "#BEE3F8" },
-          200: { value: "#90CDF4" },
-          300: { value: "#63B3ED" },
-          400: { value: "#4299E1" },
-          500: { value: "#3182CE" },
-          600: { value: "#2B6CB0" },
-          700: { value: "#2C5282" },
-          800: { value: "#2A4365" },
-          900: { value: "#1A365D" },
-          950: { value: "#102A43" },
-        },
-      },
-    },
     semanticTokens: {
       colors: {
         bg: {
@@ -165,4 +135,4 @@ const legacyVisualConfig = defineConfig({
   },
 });
 
-export const appSystem = createSystem(defaultConfig, legacyVisualConfig);
+export const appSystem = createSystem(defaultConfig, appVisualConfig);

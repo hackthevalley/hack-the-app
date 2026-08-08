@@ -1,6 +1,7 @@
 import type { FoodData, HackerApplication, Meal } from "../types/volunteer";
 
 const MEAL_ORDER: Record<string, number> = { Breakfast: 1, Lunch: 2, Dinner: 3 };
+export const MEAL_DAYS = [1, 2, 3] as const;
 
 export function getCurrentMeal(food: FoodData | null): Meal | undefined {
   return food?.allFood.find((meal) => meal.serving);

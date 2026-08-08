@@ -19,8 +19,8 @@ interface HackerInfoProps {
 export default function HackerInfo({ info, changePage, food, autoCheck }: HackerInfoProps) {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
-  const textColor = isDark ? "white" : "black";
-  const background = isDark ? "#646973" : "#dae1eb";
+  const textColor = isDark ? "white" : "fg";
+  const background = isDark ? "gray.600" : "gray.200";
   const currentMeal = getCurrentMeal(food);
   const [tabIndex, setTabIndex] = useState(currentMeal ? currentMeal.day - 1 : 0);
   const takenMealIds = useMemo(
@@ -82,20 +82,14 @@ export default function HackerInfo({ info, changePage, food, autoCheck }: Hacker
             onMealToggle={handleMealToggle}
           />
 
-          <Center mt={4} pb="96px">
+          <Center mt={6}>
             <Button
               textAlign="center"
               onClick={saveHackerInfo}
               color={textColor}
-              w="50%"
+              w={{ base: "100%", md: "50%" }}
               background={background}
-              position="fixed"
-              bottom="5%"
-              left="50%"
-              transform="translateX(-50%)"
-              zIndex="1000"
               border="2px"
-              opacity="0.85"
             >
               {selectedMealIds.length ? "Save" : "Next"}
             </Button>
