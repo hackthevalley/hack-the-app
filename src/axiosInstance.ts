@@ -1,9 +1,11 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
+import { getAccessToken, setAccessToken } from "./accessToken";
 
 const API_BASE_URL = import.meta.env.VITE_HTB_API;
 
 export const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true,
   headers: {
     accept: "application/json",
   },
@@ -11,7 +13,7 @@ export const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("auth-token");
+    const token = getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -31,14 +33,12 @@ let refreshRequest: Promise<string> | null = null;
 async function refreshAccessToken(): Promise<string> {
   if (refreshRequest) return refreshRequest;
   refreshRequest = (async () => {
-    const token = localStorage.getItem("auth-token");
-    if (!token) throw new Error("No session to refresh");
     const response = await axios.post<{ access_token: string }>(
       `${API_BASE_URL}/account/tokens`,
       undefined,
-      { headers: { Authorization: `Bearer ${token}` } },
+      { withCredentials: true },
     );
-    localStorage.setItem("auth-token", response.data.access_token);
+    setAccessToken(response.data.access_token);
     return response.data.access_token;
   })().finally(() => {
     refreshRequest = null;
