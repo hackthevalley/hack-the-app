@@ -29,6 +29,10 @@ export async function refreshSession() {
   return response.data;
 }
 
+export async function deleteSession() {
+  await axiosInstance.delete("/account/tokens");
+}
+
 export async function getCurrentUser() {
   const response = await axiosInstance.get<AccountUser>("/account/me");
   return response.data;

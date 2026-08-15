@@ -6,12 +6,13 @@ import {
   useState,
   createContext,
 } from "react";
-import { getCurrentUser, refreshSession } from "../api/authApi";
+import { deleteSession, getCurrentUser, refreshSession } from "../api/authApi";
 import type { AccountUser } from "../api/authApi";
 import { assertStaffToken } from "../utils/authorization";
 import { Center, Spinner, Text, VStack } from "@chakra-ui/react";
 import { Navigate, useLocation } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { setAccessToken } from "../accessToken";
 
 interface IUserContext {
   login: (token: string) => Promise<AccountUser>;
@@ -37,21 +38,22 @@ export function AuthProvider({ children }: IAuthProviderProps) {
   const [user, setUser] = useState<AccountUser | null>(null);
 
   const logout = useCallback(() => {
-    localStorage.removeItem("auth-token");
+    setAccessToken(null);
     setIsAuthenticated(false);
     setUser(null);
+    void deleteSession().catch(() => undefined);
   }, []);
 
   const login = useCallback(async (token: string) => {
     try {
-      localStorage.setItem("auth-token", token);
+      setAccessToken(token);
       assertStaffToken(token);
       const user = await getCurrentUser();
       setIsAuthenticated(true);
       setUser(user);
       return user;
     } catch (err) {
-      localStorage.removeItem("auth-token");
+      setAccessToken(null);
       throw err;
     }
   }, []);
@@ -67,15 +69,10 @@ export function AuthProvider({ children }: IAuthProviderProps) {
 
   useEffect(() => {
     const handler = async () => {
-      const token = localStorage.getItem("auth-token");
-      if (!token) {
-        setLoading(false);
-        return;
-      }
       try {
         const tokenResponse = await refreshSession();
         assertStaffToken(tokenResponse.access_token);
-        localStorage.setItem("auth-token", tokenResponse.access_token);
+        setAccessToken(tokenResponse.access_token);
         const currentUser = await getCurrentUser();
         setUser(currentUser);
         setLoading(false);
@@ -87,8 +84,9 @@ export function AuthProvider({ children }: IAuthProviderProps) {
       }
     };
     let timer: number;
+    localStorage.removeItem("auth-token");
     handler().then(() => {
-      timer = window.setInterval(handler, 30000);
+      timer = window.setInterval(handler, 10 * 60 * 1000);
     });
 
     return () => {
