@@ -1,6 +1,7 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_HTB_API;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? "http://localhost:8000";
+const API_BASE_URL = `${BACKEND_URL.replace(/\/+$/, "")}/api`;
 
 export const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
