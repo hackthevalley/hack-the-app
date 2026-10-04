@@ -9,13 +9,6 @@ import { checkInApplication, getFoodSchedule } from "../api/volunteerApi";
 import { formatMeal, getCurrentMeal } from "../utils/meals";
 import { getApiErrorMessage } from "../utils/apiErrors";
 
-const usePage = (initialValue = 0) => {
-  const [page, setPage] = useState(initialValue);
-  const changePage = useCallback((pageNumber: number) => setPage(pageNumber), []);
-
-  return { page, changePage };
-};
-
 export default function Scanner() {
   const recentScansRef = useRef(new Set<string>());
   const dedupeTimersRef = useRef(new Set<ReturnType<typeof setTimeout>>());
@@ -25,8 +18,8 @@ export default function Scanner() {
   const [walkinCount, setWalkinCount] = useState(0);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const currentFood = getCurrentMeal(foodData);
-  const [autoCheck, setAutoCheck] = useState<boolean>(false);
-  const { page, changePage } = usePage();
+  const [autoCheck, setAutoCheck] = useState(false);
+  const [showWalkIn, setShowWalkIn] = useState(false);
 
   const handleScan = useCallback(async (result: QrScanner.ScanResult) => {
     if (result.data !== "") {
@@ -68,23 +61,29 @@ export default function Scanner() {
   }, []);
 
   useEffect(() => {
-    if (page !== 0 || !videoRef.current) return;
+    if (showWalkIn || info || !videoRef.current) return;
+    let active = true;
     const qrScanner = new QrScanner(
-        videoRef.current,
-        (result) => handleScan(result),
-        {
-          onDecodeError: () => undefined,
-          highlightScanRegion: true,
-          highlightCodeOutline: false,
-        }
-      );
-    void qrScanner.start();
+      videoRef.current,
+      (result) => handleScan(result),
+      {
+        onDecodeError: () => undefined,
+        highlightScanRegion: true,
+        highlightCodeOutline: false,
+      },
+    );
+    void qrScanner.start().catch((error: unknown) => {
+      if (active) {
+        toast.error(getApiErrorMessage(error, "Unable to start the camera"));
+      }
+    });
 
     return () => {
+      active = false;
       qrScanner.stop();
       qrScanner.destroy();
     };
-  }, [handleScan, page]);
+  }, [handleScan, info, showWalkIn]);
 
   useEffect(
     () => () => {
@@ -92,28 +91,20 @@ export default function Scanner() {
       dedupeTimersRef.current.clear();
       recentScansRef.current.clear();
     },
-    []
+    [],
   );
 
-  useEffect(() => {
-    if (info != null) {
-      changePage(2);
-    } else {
-      changePage(0);
-    }
-  }, [changePage, info]);
-
-  if (page === 1) {
-    return <ManualOverride changePage={changePage} />;
+  if (showWalkIn) {
+    return <ManualOverride onBack={() => setShowWalkIn(false)} />;
   }
 
-  if (page === 2 && info && foodData) {
+  if (info) {
     return (
       <HackerInfo
         autoCheck={autoCheck}
         info={info}
-        changePage={changePage}
         food={foodData}
+        onDone={() => setInfo(null)}
       />
     );
   }
@@ -149,7 +140,7 @@ export default function Scanner() {
             <Switch.Root
               size="lg"
               disabled={!currentFood}
-              defaultChecked={autoCheck}
+              checked={autoCheck}
               ml={8}
               onCheckedChange={({ checked }) => setAutoCheck(checked)}
             >
@@ -161,7 +152,11 @@ export default function Scanner() {
           </Flex>
         </Flex>
       </Flex>
-      <Button width="100%" marginBottom="16px" onClick={() => changePage(1)}>
+      <Button
+        width="100%"
+        marginBottom="16px"
+        onClick={() => setShowWalkIn(true)}
+      >
         Haven't signed up?
       </Button>
     </Flex>

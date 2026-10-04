@@ -11,11 +11,7 @@ import { createWalkIn } from "../api/volunteerApi";
 import { getApiErrorMessage } from "../utils/apiErrors";
 import { validateRequiredEmail } from "../utils/validators";
 
-interface OverrideProps {
-  changePage: (pageNumber: number) => void;
-}
-
-export default function ManualOverride({ changePage }: OverrideProps) {
+export default function ManualOverride({ onBack }: { onBack: () => void }) {
   const [input, setInput] = useState("");
   const [isError, setIsError] = useState(false);
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -43,7 +39,7 @@ export default function ManualOverride({ changePage }: OverrideProps) {
   };
   const handleBackButtonClick = () => {
     setInput("");
-    changePage(0);
+    onBack();
   };
   return (
     <Flex

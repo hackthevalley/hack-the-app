@@ -26,6 +26,5 @@ Production routes always pass through `RequireAuth`.
 ## Verification
 
 ```sh
-npm run lint
-npm run build
+npm run check
 ```

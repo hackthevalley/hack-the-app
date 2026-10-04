@@ -1,34 +1,14 @@
-/* eslint-disable react-refresh/only-export-components */
-import {
-  useContext,
-  useEffect,
-  useCallback,
-  useState,
-  createContext,
-} from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getCurrentUser, refreshSession } from "../api/authApi";
 import type { AccountUser } from "../api/authApi";
 import { assertStaffToken } from "../utils/authorization";
 import { Center, Spinner, Text, VStack } from "@chakra-ui/react";
 import { Navigate, useLocation } from "react-router-dom";
 import { toast } from "react-hot-toast";
-
-interface IUserContext {
-  login: (token: string) => Promise<AccountUser>;
-  logout: () => void;
-  loading: boolean;
-  isAuthenticated: boolean;
-  user: AccountUser | null;
-}
+import { UserContext, useUser } from "./auth-context";
 
 interface IAuthProviderProps {
   children: React.ReactNode;
-}
-
-const UserContext = createContext({} as IUserContext);
-
-export function useUser() {
-  return useContext(UserContext);
 }
 
 export function AuthProvider({ children }: IAuthProviderProps) {
@@ -66,10 +46,13 @@ export function AuthProvider({ children }: IAuthProviderProps) {
   }, [logout]);
 
   useEffect(() => {
+    let cancelled = false;
+    let timer: number | undefined;
+
     const handler = async () => {
       const token = localStorage.getItem("auth-token");
       if (!token) {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
         return;
       }
       try {
@@ -77,21 +60,25 @@ export function AuthProvider({ children }: IAuthProviderProps) {
         assertStaffToken(tokenResponse.access_token);
         localStorage.setItem("auth-token", tokenResponse.access_token);
         const currentUser = await getCurrentUser();
+        if (cancelled) return;
         setUser(currentUser);
         setLoading(false);
         setIsAuthenticated(true);
       } catch {
+        if (cancelled) return;
         toast.error("Your session expired. Please sign in again.");
         logout();
         setLoading(false);
       }
     };
-    let timer: number;
-    handler().then(() => {
-      timer = window.setInterval(handler, 30000);
+    void handler().then(() => {
+      if (!cancelled) {
+        timer = window.setInterval(() => void handler(), 30000);
+      }
     });
 
     return () => {
+      cancelled = true;
       window.clearInterval(timer);
     };
   }, [logout]);

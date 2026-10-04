@@ -2,7 +2,7 @@ import { Navigate } from "react-router-dom";
 
 import { Flex, Container, Box, Heading } from "@chakra-ui/react";
 
-import { useUser } from "../components/Authentication";
+import { useUser } from "../components/auth-context";
 import LoginForm from "../components/LoginForm";
 
 export default function LoginPage() {

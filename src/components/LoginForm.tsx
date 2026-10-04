@@ -16,7 +16,7 @@ import {
   validateRequiredEmail,
   validateRequiredPassword,
 } from "../utils/validators";
-import { useUser } from "./Authentication";
+import { useUser } from "./auth-context";
 
 interface LoginFormProps {
   next: string;
