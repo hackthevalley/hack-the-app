@@ -13,6 +13,13 @@ export async function checkInApplication(id: string) {
   return response.data;
 }
 
+export async function getCheckInCounts() {
+  const response = await axiosInstance.get<CheckInCounts>(
+    "/volunteer/check-ins/counts",
+  );
+  return response.data;
+}
+
 export async function getFoodSchedule() {
   const response = await axiosInstance.get<FoodData>("/volunteer/food");
   return response.data;

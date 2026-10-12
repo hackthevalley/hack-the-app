@@ -4,9 +4,14 @@ import QrScanner from "qr-scanner";
 import { Button, Text, Flex, Switch } from "@chakra-ui/react";
 import ManualOverride from "../components/ManualOverride";
 import HackerInfo from "../components/HackerInfo";
-import type { FoodData, HackerApplication } from "../types/volunteer";
+import type {
+  CheckInCounts,
+  FoodData,
+  HackerApplication,
+} from "../types/volunteer";
 import {
   checkInApplication,
+  getCheckInCounts,
   getFoodSchedule,
   subscribeToCheckInCounts,
 } from "../api/volunteerApi";
@@ -64,14 +69,31 @@ export default function Scanner() {
       });
   }, []);
 
-  useEffect(
-    () =>
-      subscribeToCheckInCounts(({ scannedCount, walkinCount }) => {
+  useEffect(() => {
+    let cancelled = false;
+    let receivedLiveCounts = false;
+    const updateCounts = ({ scannedCount, walkinCount }: CheckInCounts) => {
+      if (!cancelled) {
         setScanCount(scannedCount);
         setWalkinCount(walkinCount);
-      }),
-    [],
-  );
+      }
+    };
+    const unsubscribe = subscribeToCheckInCounts((counts) => {
+      receivedLiveCounts = true;
+      updateCounts(counts);
+    });
+
+    void getCheckInCounts()
+      .then((counts) => {
+        if (!receivedLiveCounts) updateCounts(counts);
+      })
+      .catch(() => undefined);
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     if (showWalkIn || info || !videoRef.current) return;
