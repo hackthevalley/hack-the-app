@@ -5,7 +5,11 @@ import { Button, Text, Flex, Switch } from "@chakra-ui/react";
 import ManualOverride from "../components/ManualOverride";
 import HackerInfo from "../components/HackerInfo";
 import type { FoodData, HackerApplication } from "../types/volunteer";
-import { checkInApplication, getFoodSchedule } from "../api/volunteerApi";
+import {
+  checkInApplication,
+  getFoodSchedule,
+  subscribeToCheckInCounts,
+} from "../api/volunteerApi";
 import { formatMeal, getCurrentMeal } from "../utils/meals";
 import { getApiErrorMessage } from "../utils/apiErrors";
 
@@ -59,6 +63,15 @@ export default function Scanner() {
         setFoodData(null);
       });
   }, []);
+
+  useEffect(
+    () =>
+      subscribeToCheckInCounts(({ scannedCount, walkinCount }) => {
+        setScanCount(scannedCount);
+        setWalkinCount(walkinCount);
+      }),
+    [],
+  );
 
   useEffect(() => {
     if (showWalkIn || info || !videoRef.current) return;

@@ -1,6 +1,7 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? "http://localhost:8000";
+export const BACKEND_URL =
+  import.meta.env.VITE_BACKEND_URL ?? "http://localhost:8000";
 const API_BASE_URL = `${BACKEND_URL.replace(/\/+$/, "")}/api`;
 
 export const axiosInstance = axios.create({

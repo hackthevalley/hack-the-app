@@ -32,3 +32,8 @@ export interface CheckInResponse {
   walkinCount: number;
   message: string;
 }
+
+export interface CheckInCounts {
+  scannedCount: number;
+  walkinCount: number;
+}
