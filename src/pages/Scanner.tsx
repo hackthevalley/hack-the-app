@@ -121,13 +121,20 @@ export default function Scanner() {
         overflow: "hidden",
       }}
     >
-      <Flex style={{ flexDirection: "column", gap: "8px" }}>
-        <Flex style={{ flexDirection: "column", gap: "8px" }}>
+      <Flex style={{ width: "100%", flexDirection: "column", gap: "8px" }}>
+        <Flex
+          style={{
+            width: "100%",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "8px",
+          }}
+        >
           <Text textAlign="center">{scanCount} hackers have scanned in!</Text>
           <Text textAlign="center">{walkinCount} hackers have walked in!</Text>
           <video
             ref={videoRef}
-            style={{ width: "50vw" }}
+            style={{ width: "100%", maxWidth: "640px" }}
             className="scanner-video"
           />
         </Flex>

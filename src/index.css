@@ -1,10 +1,9 @@
 html,
 body,
 #root {
-  height: 100%;
-  max-height: 100vh;
-  overflow: hidden;
+  min-height: 100%;
 }
+
 .scanner-video {
   border: 1px solid var(--chakra-colors-border);
 }
