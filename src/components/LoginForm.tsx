@@ -59,7 +59,14 @@ export default function LoginForm({ next }: LoginFormProps) {
                   Email address
                 </ChakraField.Label>
                 <InputGroup startElement={<CgMail />}>
-                  <Input {...field} id="email" type="email" autoFocus required />
+                  <Input
+                    {...field}
+                    id="email"
+                    type="email"
+                    fontSize="16px"
+                    autoFocus
+                    required
+                  />
                 </InputGroup>
                 <ChakraField.ErrorText>
                   {typeof form.errors.email === "string" ? form.errors.email : undefined}
@@ -83,6 +90,7 @@ export default function LoginForm({ next }: LoginFormProps) {
                     {...field}
                     id="password"
                     type="password"
+                    fontSize="16px"
                     required
                   />
                 </InputGroup>
