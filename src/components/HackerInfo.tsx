@@ -79,7 +79,7 @@ export default function HackerInfo({
   };
 
   return (
-    <Flex minW="100%" minH="100svh">
+    <Flex minW="100%" h="100svh" overflowY="auto">
       <Container pb={10} minH="100svh" fontFamily="mono">
         <Box py={7} px={2} width="100%">
           <Heading as="h1" size="xl" cursor="default" mb={6} textAlign="center">

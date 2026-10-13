@@ -48,7 +48,8 @@ export default function ManualOverride({ onBack }: { onBack: () => void }) {
         alignItems: "center",
         justifyContent: "space-between",
         height: "100svh",
-        marginTop: "16px",
+        paddingTop: "16px",
+        boxSizing: "border-box",
         marginLeft: "16px",
         marginRight: "16px",
       }}
